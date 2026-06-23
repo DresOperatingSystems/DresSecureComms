@@ -10,9 +10,9 @@ Within DresOS, DresSecureComms takes over much of the day-to-day protection of t
 replacing several separate tools with a single hardened app so that messaging, calling,
 contacts, and on-device safety checks all run through one place you can trust.
 
-- Project: https://dresoperatingsystems.github.io
-- Defensive security system: https://github.com/DresOperatingSystems/DresOS-The-Android-Defensive-Security-System
-- Support the project: https://ko-fi.com/dresos
+[![Please Help fund future projects and keep this one going](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/dresos)
+
+> **Help fund Us.** DresOS is built by a small open source team in our spare time. If you enjoy this work then please tip the jar at [ko-fi.com/dresos](https://ko-fi.com/dresos). Funds go to test devices, hosting, and developer time on projects.
 
 ## What it does
 
