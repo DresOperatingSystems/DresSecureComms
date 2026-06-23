@@ -1,0 +1,86 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+def keystoreProps = new Properties()
+def keystoreFile = rootProject.file('keystore.properties')
+if (keystoreFile.exists()) { keystoreProps.load(new FileInputStream(keystoreFile)) }
+
+android {
+    namespace 'com.dresos.dressecurecomms'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.dresos.dressecurecomms'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+
+        // Keep the native footprint small. okhttp pulls in some
+        // native libs; limiting ABIs keeps the APK comfortably under 30MB.
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a' }
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreFile.exists()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystoreFile.exists()) signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = '17' }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.outputFileName = "DresSecureComms.apk"
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/{AL2.0,LGPL2.1}', 'META-INF/*.kotlin_module']
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.activity:activity-ktx:1.9.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.biometric:biometric:1.1.0'
+    implementation 'androidx.exifinterface:exifinterface:1.3.7'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+    // No Google Play Services, no Firebase, no analytics. AES-GCM uses the
+    // platform Android Keystore directly (javax.crypto), no third-party crypto lib.
+}

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/set_cat_default">
+        <Preference
+            app:key="default_sms"
+            app:title="@string/set_default_sms_title"
+            app:summary="@string/set_default_sms_sub" />
+        <Preference
+            app:key="default_phone"
+            app:title="@string/set_default_phone_title"
+            app:summary="@string/set_default_phone_sub" />
+        <Preference
+            app:key="default_screen"
+            app:title="@string/set_default_screen_title"
+            app:summary="@string/set_default_screen_sub" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/set_cat_sms">
+        <EditTextPreference
+            app:key="sms_shared_key"
+            app:title="@string/set_sms_key_title"
+            app:summary="@string/set_sms_key_sub" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/set_cat_scan">
+        <EditTextPreference
+            app:key="virustotal_api_key"
+            app:title="@string/set_vt_title"
+            app:summary="@string/set_vt_sub" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/set_cat_geo">
+        <EditTextPreference
+            app:key="mock_lat"
+            app:title="@string/set_lat_title"
+            android:inputType="numberDecimal|numberSigned" />
+        <EditTextPreference
+            app:key="mock_long"
+            app:title="@string/set_long_title"
+            android:inputType="numberDecimal|numberSigned" />
+        <Preference
+            app:key="geo_random"
+            app:title="@string/set_geo_random_title"
+            app:summary="@string/set_geo_random_sub" />
+        <Preference
+            app:key="geo_apply"
+            app:title="@string/set_geo_apply_title"
+            app:summary="@string/set_geo_apply_sub" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/set_cat_lock">
+        <SwitchPreferenceCompat
+            app:key="app_lock"
+            app:title="@string/set_lock_title"
+            app:summary="@string/set_lock_sub"
+            app:defaultValue="true" />
+        <SwitchPreferenceCompat
+            app:key="block_screenshots"
+            app:title="@string/set_shot_title"
+            app:summary="@string/set_shot_sub"
+            app:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

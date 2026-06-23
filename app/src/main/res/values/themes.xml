@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.DresSecureComms" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/dres_green</item>
+        <item name="colorOnPrimary">@color/dres_on_green</item>
+        <item name="colorPrimaryContainer">@color/dres_green_dim</item>
+        <item name="colorOnPrimaryContainer">@color/dres_on_green</item>
+
+        <item name="colorSecondary">@color/dres_yellow</item>
+        <item name="colorOnSecondary">@color/dres_on_yellow</item>
+
+        <item name="android:colorBackground">@color/dres_bg</item>
+        <item name="colorOnBackground">@color/dres_text</item>
+        <item name="colorSurface">@color/dres_surface</item>
+        <item name="colorOnSurface">@color/dres_text</item>
+        <item name="colorSurfaceVariant">@color/dres_surface2</item>
+        <item name="colorOnSurfaceVariant">@color/dres_text_dim</item>
+        <item name="colorOutline">@color/dres_border</item>
+        <item name="colorOutlineVariant">@color/dres_border</item>
+
+        <item name="android:statusBarColor">@color/dres_bg</item>
+        <item name="android:navigationBarColor">@color/dres_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

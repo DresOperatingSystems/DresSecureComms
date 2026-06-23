@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="+44 7000 000000" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:text="Active" />
+
+    <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+
+    <!-- DTMF keypad, shown when Keypad is tapped -->
+    <LinearLayout
+        android:id="@+id/dtmfPanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="1" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="2" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="3" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="4" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="5" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="6" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="7" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="8" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="9" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="*" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="0" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="#" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- In-call controls, shown once the call is dialing/active -->
+    <LinearLayout
+        android:id="@+id/controlsGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/muteBtn"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="6dp"
+                android:text="@string/mute" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/speakerBtn"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="6dp"
+                android:text="@string/speaker" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/keypadBtn"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="6dp"
+                android:text="@string/keypad" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/holdBtn"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="6dp"
+                android:text="@string/hold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addCallBtn"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="6dp"
+                android:text="@string/add_call" />
+
+            <Space android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="2" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/answerBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:backgroundTint="@color/dres_green"
+            android:text="@string/answer"
+            android:textColor="@color/dres_on_green" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/declineBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/dres_red"
+            android:text="@string/hang_up"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</LinearLayout>

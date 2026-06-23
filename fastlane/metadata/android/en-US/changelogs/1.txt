@@ -1,0 +1,4 @@
+First public release of DresSecureComms (1.0.0).
+De-Googled, Material 3. Private offline SMS with optional app-to-app AES-256-GCM
+encryption, dialer, encrypted contacts vault, VirusTotal threat scan, photo metadata
+wipe, geo spoofer with random location, and biometric app lock.

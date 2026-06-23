@@ -1,0 +1,39 @@
+DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app.
+
+Features:
+- Messages: a private, offline SMS client. Send and receive normal texts, or flip on
+  encryption per message. Encrypted messages are AES-256-GCM and only work between two
+  people who both use this app and share the same key (set by hand in Settings).
+- Calls: dial any number or call a saved contact. Calls use your normal carrier line.
+- Contacts: an encrypted local vault. Add contacts by hand or import them from the device.
+  Everything is stored encrypted at rest using the Android Keystore.
+- Threat Scan: check a URL against VirusTotal using your own free API key.
+- Metadata Wipe: strip GPS and EXIF metadata from a photo before you share it.
+- Geo Spoofer: set a mock GPS location, or have the app pick a random one. Enable this app
+  as the mock location app under Developer options first.
+- App Lock: biometric or device PIN protection.
+- Block Screenshots: stop screenshots and screen recording inside the app.
+
+Allowing SMS (one-time, required):
+Because this app is installed from outside the Play Store, Android may block its SMS access
+under "Restricted settings". If SMS does not work, do this once:
+  1. Open Android Settings, then Apps, then DresSecureComms.
+  2. Tap the three-dot menu in the top-right corner.
+  3. Tap "Allow restricted settings".
+  4. Reopen DresSecureComms and grant the SMS permission when asked.
+
+How it works:
+- SMS and calls work fully offline on your carrier line. No Google services, no trackers.
+- Internet is only used by Threat Scan.
+- For encrypted SMS, share the key with your contact by hand. Only this app can read it.
+
+Coming soon: DresSecureComms will extend Threat Scan to media, files, APKs, ZIPs, and
+effectively any content, with further security and encryption improvements to follow. That
+scanning engine remains under wraps for now.
+
+DresSecureComms is a core part of DresOS, the Android defensive security system. It brings
+private messaging, calling, contacts, threat scanning, and location protection together in
+one place so much of the system's day-to-day protection runs through this single app. You
+can read more about the wider project from the About screen.
+
+Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0.

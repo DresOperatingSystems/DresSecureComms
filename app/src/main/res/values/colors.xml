@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand palette, taken from the DresOS website. -->
+    <color name="dres_bg">#FF0A0A0F</color>
+    <color name="dres_surface">#FF111118</color>
+    <color name="dres_surface2">#FF16161F</color>
+    <color name="dres_border">#FF1E1E2E</color>
+    <color name="dres_green">#FF00E676</color>
+    <color name="dres_green_dim">#FF00C853</color>
+    <color name="dres_yellow">#FFFFC800</color>
+    <color name="dres_text">#FFE0E0E0</color>
+    <color name="dres_text_dim">#FF888888</color>
+    <color name="dres_on_green">#FF06210F</color>
+    <color name="dres_on_yellow">#FF1A1400</color>
+    <color name="dres_red">#FFFF5252</color>
+
+    <!-- Adaptive launcher background (matches the WebView icon's dark squircle). -->
+    <color name="ic_launcher_background">#FF0E0E14</color>
+</resources>
