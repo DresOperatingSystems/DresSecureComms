@@ -2,6 +2,7 @@ DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app.
 It works fully offline for SMS and calls, with no Google services and no trackers.
 
 Features:
+
 * Messages: a private offline SMS client. Send and receive normal texts, or turn on
   encryption per message. Encrypted messages use AES-256-GCM and only work between two
   people who both use this app and share the same key (set by hand in Settings).
