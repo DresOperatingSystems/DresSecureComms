@@ -86,7 +86,3 @@ history stay on your device.
 ## License
 
 Apache-2.0. Copyright © 2026 DresOS.
-
-## Privacy & Permissions
-DresSecureComms requires SMS, Phone, and Location permissions to act as your secure, offline default Dialer and SMS app. We do not collect data. 
-Read our full [Privacy Policy](privacy_policy.md).

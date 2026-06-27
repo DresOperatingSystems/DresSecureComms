@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0.
+
+  The app's only network endpoint is the VirusTotal API, contacted solely when the user runs a
+  manual URL threat scan with their own API key. This config:
+    - disables cleartext traffic everywhere (HTTPS only),
+    - trusts the system CA store (not user-added CAs),
+    - does NOT pin a certificate. VirusTotal is a third-party service whose certificate we do not
+      control; pinning to it would cause a self-inflicted outage on every certificate rotation,
+      fixable only by shipping an app update. Certificate Transparency would be the modern
+      alternative to pinning but needs a regularly updated log list and only became native around
+      API 35/36, so on minSdk 24 the dependable baseline is HTTPS + the system CA store.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">virustotal.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

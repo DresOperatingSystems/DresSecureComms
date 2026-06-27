@@ -1,0 +1,13 @@
+1.5.0
+
+Security hardening release.
+
+- App Lock now binds to a hardware Keystore key: unlocking decrypts a stored marker, so it
+  cannot be bypassed by a spoofed callback or hooking tools. Falls back to the device PIN or
+  pattern on phones without a strong biometric.
+- New encrypted messages use PBKDF2-HMAC-SHA256 (AES-256-GCM). Messages you already received
+  stay readable; the other person should also update to exchange new encrypted messages.
+- Locked screen no longer lays out content and keeps screenshot protection.
+- Added tapjacking protection on sensitive screens.
+- Network access is restricted to HTTPS for the VirusTotal scan.
+- Release builds carry a proper signing certificate and omit the Google dependency-metadata blob.

@@ -12,6 +12,10 @@ import androidx.preference.PreferenceManager
  * recents list. Call this at the very top of onCreate, before setContentView.
  */
 fun AppCompatActivity.applyScreenshotPolicy() {
+    // Tapjacking protection: discard touches delivered while this window is obscured by an
+    // overlay from another app. Applies to every activity that calls this helper, on API 24..34.
+    window.decorView.filterTouchesWhenObscured = true
+
     val block = PreferenceManager.getDefaultSharedPreferences(this)
         .getBoolean("block_screenshots", true)
     if (block) {
