@@ -9,6 +9,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- Messaging (default SMS app) -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -142,6 +143,23 @@
                 <data android:scheme="mmsto" />
             </intent-filter>
         </service>
+
+        <!-- MMS sending via android-smsmms (group messages + photos) -->
+        <service
+            android:name="com.android.mms.transaction.TransactionService"
+            android:exported="false" />
+        <receiver
+            android:name="com.klinker.android.send_message.SentReceiver"
+            android:taskAffinity="com.dresos.dressecurecomms.SMS_SENT"
+            android:exported="false" />
+        <receiver
+            android:name="com.klinker.android.send_message.DeliveredReceiver"
+            android:taskAffinity="com.dresos.dressecurecomms.SMS_DELIVERED"
+            android:exported="false" />
+        <receiver
+            android:name=".MmsSentReceiverImpl"
+            android:taskAffinity="com.klinker.android.messaging.MMS_SENT"
+            android:exported="false" />
 
         <!-- In-call service (required for the default phone-app role) -->
         <service

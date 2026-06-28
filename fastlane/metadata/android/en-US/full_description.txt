@@ -2,19 +2,19 @@ DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app.
 It works fully offline for SMS and calls, with no Google services and no trackers.
 
 Features:
+
 * Messages: a private offline SMS client. Send and receive normal texts, or turn on
-  encryption per message. Encrypted messages use AES-256-GCM and only work between two
-  people who both use this app and share the same key (set by hand in Settings).
+encryption per message. Encrypted messages use AES-256-GCM and only work between two
+people who both use this app and share the same key (set by hand in Settings).
 * Calls: dial any number or call a saved contact over your normal carrier line.
 * Contacts: an encrypted local vault, stored with the Android Keystore. Add contacts by
-  hand or import them from the device.
+hand or import them from the device.
 * Threat Scan: check a URL against VirusTotal using your own free API key.
 * Metadata Wipe: strip GPS and EXIF data from a photo before you share it.
 * Geo Spoofer: set a mock GPS location, or have the app pick a random one.
 * App Lock: biometric or device PIN.
 
 Part of the DresOS Android privacy and defensive-security project.
-
 Website: https://dresoperatingsystems.github.io
 Source: https://github.com/DresOperatingSystems/DresSecureComms
 Donate: https://ko-fi.com/dresos

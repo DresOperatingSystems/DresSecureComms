@@ -74,8 +74,11 @@ class MessagesActivity : AppCompatActivity() {
     private fun nameFor(address: String): String = nameByNumber[address] ?: address
 
     private fun newMessage() {
-        val input = EditText(this).apply { hint = getString(R.string.recipient_hint); inputType =
-            android.text.InputType.TYPE_CLASS_PHONE }
+        val input = EditText(this).apply {
+            hint = "Number, or several separated by commas"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        }
         val pad = (16 * resources.displayMetrics.density).toInt()
         val wrap = android.widget.LinearLayout(this).apply { setPadding(pad, pad, pad, 0); addView(input) }
         MaterialAlertDialogBuilder(this)

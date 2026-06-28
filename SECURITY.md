@@ -36,7 +36,7 @@ deliberately not implemented, with reasons.
   stored in resources; all secret keys are generated at runtime in the Android Keystore.
 - **SafetyNet / Play Integrity attestation: not implemented.** These require Google Play Services
   and a Google-attested device. DresSecureComms ships no Google Play Services by design and targets
-  de-Googled ROMs (GrapheneOS, LineageOS, /e/OS). Adding attestation would break the app on its
+  de-Googled ROMs (DresOS, CalyxOS, GrapheneOS, LineageOS, /e/OS). Adding attestation would break the app on its
   intended platforms and reintroduce the exact Google dependency the project exists to avoid. Its
   absence does not affect the at-rest threat model, which is covered by hardware Keystore keys and a
   biometric-bound CryptoObject.
@@ -58,4 +58,4 @@ Release builds of this app have triggered heuristic/ML detections (for example A
 default SMS and dialer app that sends SMS, reads the clipboard for the scanner, and queries
 location for the Geo Spoofer. The source is public and every sensitive permission is justified in
 the app description and the privacy policy. False-positive reports are submitted to the flagging
-vendors after each signed release; see the project's remediation notes.
+vendors after each signed release; see the project's remediation notes.(we have sent out emails to certain vendors and will be getting DresSecureComms added to whitelists.

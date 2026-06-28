@@ -30,12 +30,30 @@
         android:text="@string/encrypt_switch"
         android:textColor="?attr/colorOnSurfaceVariant" />
 
+    <ImageView
+        android:id="@+id/attachPreview"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="4dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:contentDescription="Attached photo, tap to remove" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/attachBtn"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_meta"
+            android:contentDescription="Attach photo" />
 
         <EditText
             android:id="@+id/input"

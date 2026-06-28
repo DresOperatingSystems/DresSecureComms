@@ -3,7 +3,7 @@ DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app.
 Features:
 - Messages: a private, offline SMS client. Send and receive normal texts, or flip on
   encryption per message. Encrypted messages are AES-256-GCM and only work between two
-  people who both use this app and share the same key (set by hand in Settings).
+  people who both use this app and share the same key (set by hand in Settings), also comes with photo sharing and group creation.
 - Calls: dial any number or call a saved contact. Calls use your normal carrier line.
 - Contacts: an encrypted local vault. Add contacts by hand or import them from the device.
   Everything is stored encrypted at rest using the Android Keystore.

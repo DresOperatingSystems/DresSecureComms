@@ -72,4 +72,31 @@ object SmsCrypto {
         cipher.init(Cipher.DECRYPT_MODE, deriveKey(pass, salt, sha256), GCMParameterSpec(TAG_BITS, iv))
         return String(cipher.doFinal(ct), Charsets.UTF_8)
     }
+
+    // ---- Binary media encryption (for MMS attachments), same AES-256-GCM + PBKDF2-SHA256 scheme ----
+    // Format: magic "DSCM"(4) || version(1)=2 || salt(16) || iv(12) || ciphertext+tag.
+    private val MEDIA_MAGIC = byteArrayOf(0x44, 0x53, 0x43, 0x4D) // "DSCM"
+
+    fun isEncryptedMedia(data: ByteArray): Boolean =
+        data.size > 5 && data.copyOfRange(0, 4).contentEquals(MEDIA_MAGIC)
+
+    fun encryptBytes(plain: ByteArray, pass: String): ByteArray {
+        val rnd = SecureRandom()
+        val salt = ByteArray(SALT_LEN).also { rnd.nextBytes(it) }
+        val iv = ByteArray(IV_LEN).also { rnd.nextBytes(it) }
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, deriveKey(pass, salt, sha256 = true), GCMParameterSpec(TAG_BITS, iv))
+        val ct = cipher.doFinal(plain)
+        return MEDIA_MAGIC + byteArrayOf(0x02) + salt + iv + ct
+    }
+
+    fun decryptBytes(data: ByteArray, pass: String): ByteArray {
+        var off = MEDIA_MAGIC.size + 1 // skip magic + version
+        val salt = data.copyOfRange(off, off + SALT_LEN); off += SALT_LEN
+        val iv = data.copyOfRange(off, off + IV_LEN); off += IV_LEN
+        val ct = data.copyOfRange(off, data.size)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, deriveKey(pass, salt, sha256 = true), GCMParameterSpec(TAG_BITS, iv))
+        return cipher.doFinal(ct)
+    }
 }
