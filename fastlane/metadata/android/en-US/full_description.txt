@@ -1,8 +1,10 @@
+
 DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app.
 It works fully offline for SMS and calls, with no Google services and no trackers.
 
+Release builds of this app have triggered false positives. These false positives are driven by the app's legitimate profile: it is a default SMS and dialer app that sends SMS, reads the clipboard for the scanner, and queries location for the Geo Spoofer. The source is public and every sensitive permission is justified in this description and the privacy policy. False-positive reports have been submitted to the flagging vendors. IzzyOnDroid has helped the DresOS team and <a href="https://codeberg.org/IzzyOnDroid/repodata/issues/302#issuecomment-18313844">have said</a> »I must admit my "POC" was neither perfect nor complete, but at least gives very strong indication that those "malware scanner results" cannot be trusted blindly«. Also turns out some of the security vendors might not able to proceed with whitelisting unless the application is on the Google play store.
 
-Release builds of this app have triggered false positives. These false positives are driven by the app's legitimate profile: it is a default SMS and dialer app that sends SMS, reads the clipboard for the scanner, and queries location for the Geo Spoofer. The source is public and every sensitive permission is justified in this description and the privacy policy. False-positive reports have been submitted to the flagging vendors. IzzyOnDroid has helped the DresOS team and have said this "I must admit my "POC" was neither perfect nor complete, but at least gives very strong indication (especially the last one, with just the manifest in a zip) that those "malware scanner results" cannot be trusted blindly – and, in this case, some of them even were utter bullshit". Also turns out Google are making certain security vendors not able to proceed with whitelisting unless the application is on the Google play store.
+[Check here for the email we received whilst trying to whitelist DresSecureComms](https://floss.social/@IzzyOnDroid/116834028438517498)
 
 Features:
 
