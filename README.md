@@ -8,7 +8,9 @@ and calls work fully offline on your normal carrier line.
 It is a core part of [DresOS, the Android defensive security system](https://github.com/DresOperatingSystems/DresOS-The-Android-Defensive-Security-System).
 Within DresOS, DresSecureComms takes over much of the day-to-day protection of the device,
 replacing several separate tools with a single hardened app so that messaging, calling,
-contacts, and on-device safety checks all run through one place you can trust.
+contacts, and on-device safety checks all run through 
+
+place you can trust.
 
 ## What it does
 
@@ -88,3 +90,6 @@ Apache-2.0. Copyright © 2026 DresOS.
 ## Privacy & Permissions
 DresSecureComms requires SMS, Phone, and Location permissions to act as your secure, offline default Dialer and SMS app. We do not collect data. 
 Read our full [Privacy Policy](privacy_policy.md).
+
+## Donate
+**Help fund future development.** DresOS is built by a small open source team in our spare time. If our guide, Magisk modules or app saved you a weekend of research, please tip the jar at [ko-fi.com/dresos](https://ko-fi.com/dresos). Funds go to test devices, dev stations, and developer time on updates and future projects.
