@@ -5,12 +5,17 @@ private messaging, calling, contacts, threat scanning, and location protection t
 one place, with no Google services, no Firebase, no analytics, and no trackers. Messaging
 and calls work fully offline on your normal carrier line.
 
+## What it is
+
 It is a core part of [DresOS, the Android defensive security system](https://github.com/DresOperatingSystems/DresOS-The-Android-Defensive-Security-System).
 Within DresOS, DresSecureComms takes over much of the day-to-day protection of the device,
-replacing several separate tools with a single hardened app so that messaging, calling,
-contacts, and on-device safety checks all run through 
+replacing several separate tools with a single hardened app so that messaging, calling, contacts, and on-device safety checks all run through one place you can trust.
 
-place you can trust.
+## Download
+
+>[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases)
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="50">](https://apt.izzysoft.de/packages/com.dresos.dressecurecomms)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases)
 
 ## What it does
 
