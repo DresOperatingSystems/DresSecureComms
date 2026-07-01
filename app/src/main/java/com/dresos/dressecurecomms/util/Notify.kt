@@ -10,7 +10,7 @@ import com.dresos.dressecurecomms.R
 
 object Notify {
     private const val CHANNEL = "messages"
-    fun message(context: Context, title: String, text: String) {
+    fun message(context: Context, address: String, title: String, text: String) {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             nm.createNotificationChannel(
@@ -25,6 +25,6 @@ object Notify {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
-        nm.notify(System.currentTimeMillis().toInt(), n)
+        nm.notify(("sms:$address").hashCode(), n)
     }
 }

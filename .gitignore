@@ -12,3 +12,6 @@
 *.keystore
 *.jks
 keystore.properties
+node_modules/
+.env
+dist/

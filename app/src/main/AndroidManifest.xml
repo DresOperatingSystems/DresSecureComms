@@ -35,6 +35,7 @@
 
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
@@ -83,7 +84,9 @@
             android:name=".InCallActivity"
             android:exported="false"
             android:launchMode="singleTop"
-            android:excludeFromRecents="true" />
+            android:excludeFromRecents="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
 
         <!-- Compose entry point (required for the default SMS-app role) -->
         <activity android:name=".ComposeActivity" android:exported="true">

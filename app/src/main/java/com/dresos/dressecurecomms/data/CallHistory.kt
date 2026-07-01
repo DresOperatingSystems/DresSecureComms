@@ -7,6 +7,8 @@ import android.provider.CallLog
 object CallHistory {
     data class Entry(val id: Long, val number: String, val type: Int, val date: Long, val duration: Long)
 
+    private const val MAX = 500
+
     fun load(ctx: Context): List<Entry> {
         val out = ArrayList<Entry>()
         val cols = arrayOf(
@@ -24,7 +26,7 @@ object CallHistory {
             val ti = c.getColumnIndexOrThrow(CallLog.Calls.TYPE)
             val di = c.getColumnIndexOrThrow(CallLog.Calls.DATE)
             val dui = c.getColumnIndexOrThrow(CallLog.Calls.DURATION)
-            while (c.moveToNext()) {
+            while (c.moveToNext() && out.size < MAX) {
                 out.add(Entry(c.getLong(idi), c.getString(ni) ?: "Unknown",
                     c.getInt(ti), c.getLong(di), c.getLong(dui)))
             }

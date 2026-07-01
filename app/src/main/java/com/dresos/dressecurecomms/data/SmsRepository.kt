@@ -12,6 +12,9 @@ object SmsRepository {
     data class Msg(val body: String, val time: Long, val outgoing: Boolean)
     data class DeleteResult(val isDefault: Boolean, val removed: Int)
 
+    private const val MAX_SCAN = 5000
+    private const val MAX_THREAD = 2000
+
     fun isDefault(ctx: Context): Boolean {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -36,7 +39,9 @@ object SmsRepository {
             val ai = c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
             val bi = c.getColumnIndexOrThrow(Telephony.Sms.BODY)
             val di = c.getColumnIndexOrThrow(Telephony.Sms.DATE)
-            while (c.moveToNext()) {
+            var scanned = 0
+            while (c.moveToNext() && scanned < MAX_SCAN) {
+                scanned++
                 val threadId = c.getLong(ti)
                 val addr = c.getString(ai) ?: continue
                 val body = decode(c.getString(bi) ?: "", key)
@@ -67,7 +72,7 @@ object SmsRepository {
             val bi = c.getColumnIndexOrThrow(Telephony.Sms.BODY)
             val di = c.getColumnIndexOrThrow(Telephony.Sms.DATE)
             val tyi = c.getColumnIndexOrThrow(Telephony.Sms.TYPE)
-            while (c.moveToNext()) {
+            while (c.moveToNext() && out.size < MAX_THREAD) {
                 val body = decode(c.getString(bi) ?: "", key)
                 val time = c.getLong(di)
                 val outgoing = c.getInt(tyi) != Telephony.Sms.MESSAGE_TYPE_INBOX

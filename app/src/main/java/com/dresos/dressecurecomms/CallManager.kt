@@ -6,8 +6,8 @@ import android.telecom.CallAudioState
 import android.telecom.InCallService
 
 object CallManager {
-    var call: Call? = null
-    var inCallService: InCallService? = null
+    @Volatile var call: Call? = null
+    @Volatile var inCallService: InCallService? = null
 
     fun setSpeaker(on: Boolean) {
         inCallService?.setAudioRoute(

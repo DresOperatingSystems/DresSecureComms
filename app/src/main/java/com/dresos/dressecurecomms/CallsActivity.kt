@@ -11,18 +11,24 @@ import android.text.format.DateUtils
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.dresos.dressecurecomms.data.CallHistory
 import com.dresos.dressecurecomms.databinding.ActivityCallsBinding
 import com.dresos.dressecurecomms.ui.TwoLineAdapter
+import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CallsActivity : AppCompatActivity() {
     private lateinit var b: ActivityCallsBinding
     private lateinit var adapter: TwoLineAdapter<CallHistory.Entry>
     private var pendingDeleteId: Long? = null
     private var pendingClear = false
+    private var nameByNumber: Map<String, String> = emptyMap()
 
     private val requestCall =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { g ->
@@ -52,7 +58,7 @@ class CallsActivity : AppCompatActivity() {
         b.toolbar.menu.add(0, 1, 0, "Clear call history").setOnMenuItemClickListener { confirmClear(); true }
 
         adapter = TwoLineAdapter(this, emptyList()) { e ->
-            e.number to "${CallHistory.typeLabel(e.type)} · ${DateUtils.getRelativeTimeSpanString(e.date)}"
+            nameFor(e.number) to "${CallHistory.typeLabel(e.type)} · ${DateUtils.getRelativeTimeSpanString(e.date)}"
         }
         b.list.adapter = adapter
         b.list.setOnItemClickListener { _, _, pos, _ -> b.number.setText(adapter.getItem(pos).number) }
@@ -75,11 +81,22 @@ class CallsActivity : AppCompatActivity() {
             requestReadLog.launch(Manifest.permission.READ_CALL_LOG)
     }
 
-    private fun reload() { adapter.setItems(CallHistory.load(this)) }
+    private fun reload() {
+        lifecycleScope.launch {
+            val (entries, names) = withContext(Dispatchers.IO) {
+                val e = CallHistory.load(this@CallsActivity)
+                e to Contacts.nameMap(this@CallsActivity, e.map { it.number })
+            }
+            nameByNumber = names
+            adapter.setItems(entries)
+        }
+    }
+
+    private fun nameFor(number: String): String = nameByNumber[number] ?: number
 
     private fun entryActions(e: CallHistory.Entry) {
         MaterialAlertDialogBuilder(this)
-            .setTitle(e.number)
+            .setTitle(nameFor(e.number))
             .setItems(arrayOf("Call", "Delete")) { _, which ->
                 when (which) {
                     0 -> { b.number.setText(e.number); if (hasCall()) place() else requestCall.launch(Manifest.permission.CALL_PHONE) }

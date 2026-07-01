@@ -11,11 +11,17 @@ import android.telecom.VideoProfile
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.dresos.dressecurecomms.databinding.ActivityIncallBinding
+import com.dresos.dressecurecomms.util.Contacts
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class InCallActivity : AppCompatActivity() {
     private lateinit var b: ActivityIncallBinding
+    private var callerName: String? = null
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = render()
@@ -31,6 +37,15 @@ class InCallActivity : AppCompatActivity() {
         val call = CallManager.call
         if (call == null) { finish(); return }
         call.registerCallback(callback)
+
+        val number = call.details.handle?.schemeSpecificPart
+        if (!number.isNullOrBlank()) {
+            lifecycleScope.launch {
+                val name = withContext(Dispatchers.IO) { Contacts.nameFor(this@InCallActivity, number) }
+                callerName = name
+                b.number.text = name
+            }
+        }
 
         b.answerBtn.setOnClickListener { CallManager.call?.answer(VideoProfile.STATE_AUDIO_ONLY) }
         b.declineBtn.setOnClickListener { decline() }
@@ -93,7 +108,7 @@ class InCallActivity : AppCompatActivity() {
     @Suppress("DEPRECATION")
     private fun render() {
         val call = CallManager.call ?: run { finish(); return }
-        b.number.text = call.details.handle?.schemeSpecificPart ?: "Unknown"
+        b.number.text = callerName ?: call.details.handle?.schemeSpecificPart ?: "Unknown"
         val state = call.state
         b.status.text = when (state) {
             Call.STATE_RINGING -> getString(R.string.call_incoming)

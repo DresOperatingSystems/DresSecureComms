@@ -8,6 +8,7 @@ import android.content.Intent
 import android.provider.Telephony
 import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.crypto.SmsCrypto
+import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.Notify
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +46,7 @@ class SmsDeliverReceiver : BroadcastReceiver() {
                     SmsCrypto.isEncrypted(body) -> "[encrypted, set the shared key in Settings]"
                     else -> body
                 }
-                Notify.message(context, sender, text)
+                Notify.message(context, sender, Contacts.nameFor(context, sender), text)
             } finally {
                 pending.finish()
             }

@@ -1,0 +1,1 @@
+Fixes duplicate SMS notifications, shows the incoming call screen over the lock screen, and shows saved contact names in call history and on incoming calls. Bounded call and message queries plus other robustness fixes.

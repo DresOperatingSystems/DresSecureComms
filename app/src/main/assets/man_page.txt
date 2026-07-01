@@ -27,9 +27,13 @@ How it works:
 - Internet is only used by Threat Scan.
 - For encrypted SMS, share the key with your contact by hand. Only this app can read it.
 
-Coming soon: DresSecureComms will extend Threat Scan to media, files, APKs, ZIPs, and
-effectively any content, with further security and encryption improvements to follow. That
-scanning engine remains under wraps for now.
+Coming soon:
+- A spam call shield that recognises and blocks known spam and scam callers before your
+  phone rings.
+- Stronger encryption across more of the app, not just messages and the contact vault.
+- The next Threat Scan engine, now close to complete, extends scanning to media, files,
+  APKs, ZIPs, and effectively any content. That engine stays under wraps for now.
+- Several smaller refinements throughout.
 
 DresSecureComms is a core part of DresOS, the Android defensive security system. It brings
 private messaging, calling, contacts, threat scanning, and location protection together in
