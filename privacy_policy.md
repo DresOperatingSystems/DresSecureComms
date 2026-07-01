@@ -29,4 +29,5 @@ DresSecureComms contains **zero** third-party trackers, ads, or Firebase/Google 
 DresSecureComms is fully open-source. You can audit the code, verify the permissions, and build the app yourself from our official GitHub repository.
 
 **Source Code:** [https://github.com/DresOperatingSystems/DresSecureComms](https://github.com/DresOperatingSystems/DresSecureComms)
+
 **Project Website:** [https://dresoperatingsystems.github.io/](https://dresoperatingsystems.github.io/)

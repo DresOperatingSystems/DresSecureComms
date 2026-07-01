@@ -53,9 +53,7 @@ deliberately not implemented, with reasons.
 
 ## Antivirus false positives
 
-Release builds of this app have triggered heuristic/ML detections (for example Avast/AVG
-"Android:Evo-gen"). These are false positives driven by the app's legitimate profile: it is a
+Release builds of this app have triggered false positives on virus total we sent out false positive reports to these security vendors and now the app is whitelisted with most of them (6/7) we are currently waiting to hear back from bit defender the last security vendor to whitelist DresSecureComms. These false positives are driven by the app's legitimate profile: it is a
 default SMS and dialer app that sends SMS, reads the clipboard for the scanner, and queries
 location for the Geo Spoofer. The source is public and every sensitive permission is justified in
-the app description and the privacy policy. False-positive reports are submitted to the flagging
-vendors after each signed release; see the project's remediation notes.(we have sent out emails to certain vendors and will be getting DresSecureComms added to whitelists.
+the app description and the privacy policy. 
