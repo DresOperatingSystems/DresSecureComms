@@ -58,7 +58,6 @@ class ContactsActivity : AppCompatActivity() {
             .show()
     }
 
-    /** Add (existing == null) or edit a contact, with name, number and email. */
     private fun showForm(existing: ContactsStore.Contact?) {
         val name = EditText(this).apply {
             hint = getString(R.string.name_hint); setText(existing?.name ?: "")

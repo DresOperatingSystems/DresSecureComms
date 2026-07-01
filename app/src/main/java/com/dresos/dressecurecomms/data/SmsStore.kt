@@ -7,7 +7,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
-/** Sent messages we record ourselves (we are not the default SMS app). Encrypted at rest. */
 object SmsStore {
     private const val FILE = "sent_sms.dat"
     data class Sent(val address: String, val body: String, val time: Long)

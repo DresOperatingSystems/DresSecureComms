@@ -26,7 +26,7 @@ class SmsDeliverReceiver : BroadcastReceiver() {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // As the default SMS app we are responsible for writing to the inbox.
+
                 try {
                     val values = ContentValues().apply {
                         put(Telephony.Sms.ADDRESS, sender)

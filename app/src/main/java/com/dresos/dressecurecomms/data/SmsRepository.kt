@@ -7,19 +7,13 @@ import android.os.Build
 import android.provider.Telephony
 import com.dresos.dressecurecomms.crypto.SmsCrypto
 
-/**
- * Reads and deletes SMS straight from the system provider (content://sms, ALL message
- * types), grouped by the provider's real thread id. Reading and deleting use the SAME
- * source and the SAME thread id, so what you see is exactly what gets deleted. This mirrors
- * how a normal default SMS app (e.g. Fossify Messages) works.
- */
 object SmsRepository {
     data class Conversation(val threadId: Long, val address: String, val snippet: String, val time: Long)
     data class Msg(val body: String, val time: Long, val outgoing: Boolean)
     data class DeleteResult(val isDefault: Boolean, val removed: Int)
 
     fun isDefault(ctx: Context): Boolean {
-        // RoleManager is the authoritative source on Android 10+; fall back to the package lookup.
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val rm = ctx.getSystemService(RoleManager::class.java)
             if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_SMS) && rm.isRoleHeld(RoleManager.ROLE_SMS)) {
@@ -47,7 +41,7 @@ object SmsRepository {
                 val addr = c.getString(ai) ?: continue
                 val body = decode(c.getString(bi) ?: "", key)
                 val time = c.getLong(di)
-                // First row seen per thread wins (cursor is newest-first), so it is the latest message.
+
                 if (!byThread.containsKey(threadId)) {
                     byThread[threadId] = Conversation(threadId, addr, body, time)
                 }
@@ -86,12 +80,6 @@ object SmsRepository {
     fun threadIdForAddress(ctx: Context, address: String): Long =
         try { Telephony.Threads.getOrCreateThreadId(ctx, address) } catch (e: Exception) { -1 }
 
-    /**
-     * Deletes the conversation from the system provider, plus our sent log. Does NOT pre-check
-     * the default-app status (that check can be stale on some ROMs); it attempts the delete and
-     * treats a SecurityException as proof we are not allowed (not the default app). Returns
-     * isDefault=false only if the system actually denied the delete.
-     */
     fun deleteThread(ctx: Context, threadId: Long, address: String): DeleteResult {
         SmsStore.deleteForAddress(ctx, address)
 
@@ -111,7 +99,7 @@ object SmsRepository {
             removed += attempt(Telephony.Sms.CONTENT_URI, "${Telephony.Sms.THREAD_ID}=?", arrayOf(tid.toString()))
             attempt(Telephony.Mms.CONTENT_URI, "thread_id=?", arrayOf(tid.toString()))
         }
-        // Fallbacks if the thread id matched nothing: per-row by id, then by address.
+
         if (removed == 0 && !denied) {
             try {
                 val ids = ArrayList<Long>()

@@ -15,8 +15,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         installCrashHandler()
-        // Apply the screenshot policy to every activity, including the in-call and
-        // compose screens, without touching each one individually.
+
         registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
                 val block = PreferenceManager.getDefaultSharedPreferences(activity)

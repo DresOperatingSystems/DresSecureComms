@@ -11,26 +11,13 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-/**
- * App Lock bound to a hardware Android Keystore key that requires biometric authentication for
- * every use. Unlocking is not a callback flag, it is a real cryptographic operation: a fixed
- * marker is encrypted once at enrollment (behind a biometric prompt) and decrypted on every
- * unlock (behind a biometric prompt). A spoofed callback or a hooking tool such as Frida that
- * calls onAuthenticationSucceeded directly never causes the OS to release the key, so the decrypt
- * throws and the unlock fails closed. This is what the privacy policy promises and what CodeQL's
- * java/android/insecure-local-authentication query asks for.
- *
- * The key is created with setUserAuthenticationRequired(true) (per-use auth) and
- * setInvalidatedByBiometricEnrollment(true), so adding or changing a fingerprint invalidates it.
- * On-disk token (filesDir/applock.bin): ivLen(1) || iv || ciphertext+GCM tag.
- */
 object AppLockManager {
     private const val KEY_ALIAS = "dres_secure_comms_unlock_key"
     private const val TOKEN_FILE = "applock.bin"
     private const val TRANSFORM = "AES/GCM/NoPadding"
     private const val GCM_TAG_BITS = 128
-    // Fixed, non-secret marker. Unlock must recover exactly these bytes via the Keystore key.
-    private val MARKER = byteArrayOf(0x44, 0x53, 0x43, 0x2D, 0x4C, 0x4F, 0x43, 0x4B) // "DSC-LOCK"
+
+    private val MARKER = byteArrayOf(0x44, 0x53, 0x43, 0x2D, 0x4C, 0x4F, 0x43, 0x4B)
 
     private fun keystore(): KeyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
 
@@ -43,42 +30,29 @@ object AppLockManager {
             .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setKeySize(256)
-            .setUserAuthenticationRequired(true)          // every use needs a fresh biometric auth
-            .setInvalidatedByBiometricEnrollment(true)    // new/changed fingerprint invalidates it
+            .setUserAuthenticationRequired(true)
+            .setInvalidatedByBiometricEnrollment(true)
             .build()
         return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
             .apply { init(spec) }.generateKey()
     }
 
-    /** True once an App Lock token has been created on this device. */
     fun isEnrolled(ctx: Context): Boolean = tokenFile(ctx).exists()
 
-    /** Cipher for first-time enrollment. Pass to BiometricPrompt.CryptoObject. */
     fun newEncryptCipher(): Cipher =
         Cipher.getInstance(TRANSFORM).apply { init(Cipher.ENCRYPT_MODE, getOrCreateKey()) }
 
-    /**
-     * Cipher for unlocking an enrolled device, initialised with the stored IV. May throw
-     * KeyPermanentlyInvalidatedException if biometrics changed; the caller should then reset()
-     * and re-enroll.
-     */
     fun newDecryptCipher(ctx: Context): Cipher {
         val (iv, _) = readToken(ctx)
         return Cipher.getInstance(TRANSFORM)
             .apply { init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(GCM_TAG_BITS, iv)) }
     }
 
-    /** Call inside onAuthenticationSucceeded on first enrollment, with result.cryptoObject.cipher. */
     fun finishEnroll(ctx: Context, cipher: Cipher) {
         val ct = cipher.doFinal(MARKER)
         writeToken(ctx, cipher.iv, ct)
     }
 
-    /**
-     * Call inside onAuthenticationSucceeded on unlock, with result.cryptoObject.cipher. Returns true
-     * only if the marker decrypts correctly, which can only happen when the OS actually unlocked the
-     * key for this authenticated cipher. Any failure returns false (fail closed).
-     */
     fun verifyUnlock(ctx: Context, cipher: Cipher): Boolean = try {
         val (_, ct) = readToken(ctx)
         cipher.doFinal(ct).contentEquals(MARKER)
@@ -86,7 +60,6 @@ object AppLockManager {
         false
     }
 
-    /** Wipe key and token so the next unlock re-enrolls (e.g. after biometrics change). */
     fun reset(ctx: Context) {
         runCatching { keystore().deleteEntry(KEY_ALIAS) }
         runCatching { tokenFile(ctx).delete() }

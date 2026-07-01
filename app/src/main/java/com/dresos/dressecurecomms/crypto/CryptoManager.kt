@@ -10,11 +10,6 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-/**
- * AES-256-GCM at-rest encryption backed by the Android Keystore. The key never leaves
- * secure hardware where available. Used for local encrypted storage such as the
- * upcoming contacts vault.
- */
 object CryptoManager {
     private const val ALIAS = "dres_secure_comms_key"
     private const val IV_LEN = 12

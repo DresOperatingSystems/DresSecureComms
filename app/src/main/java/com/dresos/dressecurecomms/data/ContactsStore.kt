@@ -7,7 +7,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
-/** An encrypted local contacts vault. Stored as a single Keystore-encrypted blob. */
 object ContactsStore {
     private const val FILE = "contacts.dat"
     data class Contact(val name: String, val number: String, val email: String = "")
@@ -40,7 +39,6 @@ object ContactsStore {
         save(ctx, list)
     }
 
-    /** Replaces the contact matching original (by name + number) with updated. */
     fun update(ctx: Context, original: Contact, updated: Contact) {
         var matched = false
         val list = load(ctx).map {

@@ -12,8 +12,7 @@ import com.dresos.dressecurecomms.util.Notify
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
-        // When this app is the default SMS app, SMS_DELIVER handles incoming messages.
-        // Skip here to avoid a duplicate notification.
+
         if (Telephony.Sms.getDefaultSmsPackage(context) == context.packageName) return
 
         val key = PreferenceManager.getDefaultSharedPreferences(context)

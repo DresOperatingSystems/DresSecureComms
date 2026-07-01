@@ -6,14 +6,8 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 
-/**
- * Applies the user's screenshot policy to this activity's window. When "Block screenshots"
- * is on (default), FLAG_SECURE prevents screenshots, screen recording, and previews in the
- * recents list. Call this at the very top of onCreate, before setContentView.
- */
 fun AppCompatActivity.applyScreenshotPolicy() {
-    // Tapjacking protection: discard touches delivered while this window is obscured by an
-    // overlay from another app. Applies to every activity that calls this helper, on API 24..34.
+
     window.decorView.filterTouchesWhenObscured = true
 
     val block = PreferenceManager.getDefaultSharedPreferences(this)
@@ -27,11 +21,6 @@ fun AppCompatActivity.applyScreenshotPolicy() {
     }
 }
 
-/**
- * Makes a dialog respect the screenshot policy. A dialog is a separate window, so the
- * activity's FLAG_SECURE does not cover it; this sets the flag on the dialog's own window.
- * Call before show().
- */
 fun android.app.Dialog.applyScreenshotPolicy(context: android.content.Context) {
     val block = PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean("block_screenshots", true)

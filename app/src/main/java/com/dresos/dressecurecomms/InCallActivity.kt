@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dresos.dressecurecomms.databinding.ActivityIncallBinding
 import com.google.android.material.button.MaterialButton
 
-/** In-call screen: caller, state, answer / hang up, and the full control grid when active. */
 class InCallActivity : AppCompatActivity() {
     private lateinit var b: ActivityIncallBinding
 

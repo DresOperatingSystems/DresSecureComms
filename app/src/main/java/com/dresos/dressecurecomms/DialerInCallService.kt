@@ -5,7 +5,6 @@ import android.content.Intent
 import android.telecom.Call
 import android.telecom.InCallService
 
-/** Receives calls when DresSecureComms is the default phone app and shows the in-call screen. */
 class DialerInCallService : InCallService() {
     override fun onCallAdded(call: Call) {
         super.onCallAdded(call)

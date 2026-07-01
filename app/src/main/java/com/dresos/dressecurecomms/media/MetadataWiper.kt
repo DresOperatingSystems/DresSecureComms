@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 
-/** Copies an image into the cache and strips location and identifying EXIF metadata. */
 object MetadataWiper {
     private val TAGS = arrayOf(
         ExifInterface.TAG_GPS_LATITUDE, ExifInterface.TAG_GPS_LATITUDE_REF,

@@ -9,11 +9,6 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-/**
- * VirusTotal v3 client. Blocking, so run off the main thread. Never throws: any failure
- * is returned as a human-readable string. Known URLs are looked up instantly; only
- * never-before-seen URLs are submitted for a fresh (slower) analysis.
- */
 object VirusTotalClient {
     private const val BASE = "https://www.virustotal.com/api/v3"
     private val client = OkHttpClient.Builder()

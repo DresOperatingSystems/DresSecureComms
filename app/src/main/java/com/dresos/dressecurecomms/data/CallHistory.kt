@@ -4,7 +4,6 @@ package com.dresos.dressecurecomms.data
 import android.content.Context
 import android.provider.CallLog
 
-/** Reads and deletes the system call log. Reading needs READ_CALL_LOG; deleting WRITE_CALL_LOG. */
 object CallHistory {
     data class Entry(val id: Long, val number: String, val type: Int, val date: Long, val duration: Long)
 

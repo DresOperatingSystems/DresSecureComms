@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.security.keystore.KeyPermanentlyInvalidatedException
-import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -65,27 +64,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         applyScreenshotPolicy()
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-
         if (prefs.getBoolean("app_lock", true)) {
-            binding.root.visibility = View.GONE   // GONE, not INVISIBLE: nothing is laid out while locked
             promptUnlock()
         } else {
             wireUi()
         }
     }
 
-    // ---- App Lock ----
-    // Unlock is a real cryptographic operation, not a callback flag. With a class-3 (strong)
-    // biometric the Keystore key is required to decrypt a stored marker, so a spoofed callback or
-    // a Frida hook cannot pass. Devices without a strong biometric fall back to the device keyguard.
     private fun promptUnlock() {
         val bm = BiometricManager.from(this)
         when {
             bm.canAuthenticate(BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS -> cryptoUnlock()
             bm.canAuthenticate(DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS -> credentialUnlock()
-            else -> wireUi()   // no lock available: do not strand the user
+            else -> wireUi()
         }
     }
 
@@ -100,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             AppLockManager.reset(this)
             try { AppLockManager.newEncryptCipher() } catch (e2: Exception) { credentialUnlock(); return }
         }
-        // After a reset above, the device is no longer enrolled, so this branch re-enrolls.
+
         val reEnrolling = enrolling || !AppLockManager.isEnrolled(this)
 
         val prompt = BiometricPrompt(
@@ -124,15 +115,14 @@ class MainActivity : AppCompatActivity() {
         val info = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Unlock DresSecureComms")
             .setSubtitle("Authenticate to decrypt your vault")
-            .setAllowedAuthenticators(BIOMETRIC_STRONG) // CryptoObject requires STRONG, not DEVICE_CREDENTIAL
+            .setAllowedAuthenticators(BIOMETRIC_STRONG)
             .setNegativeButtonText("Cancel")
             .build()
         prompt.authenticate(info, BiometricPrompt.CryptoObject(cipher))
     }
 
     private fun credentialUnlock() {
-        // No class-3 biometric available: gate on the device keyguard (PIN/pattern/password).
-        // This is a genuine authentication step but is not crypto-bound, so no CryptoObject.
+
         val prompt = BiometricPrompt(
             this, ContextCompat.getMainExecutor(this),
             object : BiometricPrompt.AuthenticationCallback() {
@@ -159,7 +149,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun wireUi() {
-        binding.root.visibility = View.VISIBLE
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         card(binding.cardMessages, R.drawable.ic_sms, R.string.card_messages_title, R.string.card_messages_sub) {
             startActivity(Intent(this, MessagesActivity::class.java))
         }
@@ -192,7 +183,6 @@ class MainActivity : AppCompatActivity() {
         b.root.setOnClickListener { onClick() }
     }
 
-    // ---- Threat scan ----
     private fun scanUrlDialog() {
         val key = prefs.getString("virustotal_api_key", "").orEmpty()
         if (key.isBlank()) {
@@ -238,7 +228,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ---- Metadata wipe ----
     private fun onImagePicked(uri: Uri) {
         try {
             cleanedImage = MetadataWiper.wipeToCache(this, uri)

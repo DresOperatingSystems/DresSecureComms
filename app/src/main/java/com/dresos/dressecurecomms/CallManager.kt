@@ -5,7 +5,6 @@ import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.InCallService
 
-/** Holds the active call and exposes the in-call controls. */
 object CallManager {
     var call: Call? = null
     var inCallService: InCallService? = null

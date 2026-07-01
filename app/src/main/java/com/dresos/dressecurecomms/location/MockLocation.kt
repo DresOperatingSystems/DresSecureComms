@@ -6,7 +6,6 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.SystemClock
 
-/** Sets a mock GPS fix. Requires this app to be the mock location app in Developer options. */
 object MockLocation {
     fun apply(context: Context, lat: Double, lng: Double): String {
         return try {

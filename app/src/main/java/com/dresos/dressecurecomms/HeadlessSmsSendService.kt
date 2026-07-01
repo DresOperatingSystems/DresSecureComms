@@ -8,7 +8,6 @@ import android.os.IBinder
 import android.telephony.SmsManager
 import android.telephony.TelephonyManager
 
-/** Sends quick-reply messages (e.g. "reject call with text") for the default SMS app. */
 class HeadlessSmsSendService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
