@@ -92,4 +92,7 @@ DresSecureComms requires SMS, Phone, and Location permissions to act as your sec
 Read our full [Privacy Policy](privacy_policy.md).
 
 ## Donate
-**Help fund future development.** DresOS is built by a small open source team in our spare time. If our guide, Magisk modules or app saved you a weekend of research, please tip the jar at [ko-fi.com/dresos](https://ko-fi.com/dresos). Funds go to test devices, dev stations, and developer time on updates and future projects.
+
+> **Help fund future development.** DresOS is built by a small open source team in our spare time. If our guide, Magisk modules or app saved you a weekend of research, please tip the jar. Funds go to test devices, dev stations, and developer time on updates and future projects.
+
+[![Please Help fund future projects and keep this one going](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/dresos)
