@@ -10,10 +10,6 @@ Within DresOS, DresSecureComms takes over much of the day-to-day protection of t
 replacing several separate tools with a single hardened app so that messaging, calling,
 contacts, and on-device safety checks all run through one place you can trust.
 
-- Project: https://dresoperatingsystems.github.io
-- Defensive security system: https://github.com/DresOperatingSystems/DresOS-The-Android-Defensive-Security-System
-- Support the project: https://ko-fi.com/dresos
-
 ## What it does
 
 - **Messages.** A private SMS client. Send and receive normal texts, or switch on
@@ -46,6 +42,8 @@ ordinary phone calls and are not end-to-end encrypted, and the app says so plain
 
 Contacts and the sent-message log are encrypted at rest using a key held in the Android
 Keystore, so they stay protected on the device.
+
+Major encryption updates are on the way
 
 ## Setting it as your default apps
 
