@@ -1,6 +1,8 @@
 /* Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms
 
+import com.dresos.dressecurecomms.util.SecureKeys
+
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
@@ -184,7 +186,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scanUrlDialog() {
-        val key = prefs.getString("virustotal_api_key", "").orEmpty()
+        val key = SecureKeys.vtKey(this)
         if (key.isBlank()) {
             Snackbar.make(binding.root, "Add your VirusTotal API key in Settings first.", Snackbar.LENGTH_LONG).show()
             return

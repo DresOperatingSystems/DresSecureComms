@@ -1,6 +1,8 @@
 /* Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms
 
+import com.dresos.dressecurecomms.util.SecureKeys
+
 import android.Manifest
 import android.content.Intent
 import android.os.Build
@@ -59,7 +61,7 @@ class MessagesActivity : AppCompatActivity() {
     private var nameByNumber: Map<String, String> = emptyMap()
 
     private fun reload() {
-        val key = prefs.getString("sms_shared_key", "").orEmpty()
+        val key = SecureKeys.smsKey(this)
         lifecycleScope.launch {
             val (items, names) = withContext(Dispatchers.IO) {
                 val convs = SmsRepository.conversations(this@MessagesActivity, key)

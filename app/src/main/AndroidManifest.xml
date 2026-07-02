@@ -50,6 +50,9 @@
         android:theme="@style/Theme.DresSecureComms"
         tools:targetApi="31">
 
+        <meta-data android:name="open_source" android:value="true" />
+        <meta-data android:name="open_source_license" android:value="Apache License, Version 2.0" />
+
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,0 +1,1 @@
+Encrypts the SMS shared key and VirusTotal API key at rest with the Android Keystore, and declares open-source metadata so app managers recognise the app as FOSS.

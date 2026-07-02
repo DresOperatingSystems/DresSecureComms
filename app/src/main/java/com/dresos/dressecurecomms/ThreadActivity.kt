@@ -1,6 +1,8 @@
 /* Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms
 
+import com.dresos.dressecurecomms.util.SecureKeys
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -86,7 +88,7 @@ class ThreadActivity : AppCompatActivity() {
 
         adapter = MessageAdapter(this, emptyList())
         b.list.adapter = adapter
-        b.encrypt.isChecked = prefs.getString("sms_shared_key", "").orEmpty().isNotBlank()
+        b.encrypt.isChecked = SecureKeys.smsKey(this).isNotBlank()
 
         b.attachBtn.setOnClickListener { pickImage.launch("image/*") }
         b.attachPreview.setOnClickListener { pendingImage = null; updateAttachUi() }
@@ -123,7 +125,7 @@ class ThreadActivity : AppCompatActivity() {
     }
 
     private fun reload() {
-        val key = prefs.getString("sms_shared_key", "").orEmpty()
+        val key = SecureKeys.smsKey(this)
         lifecycleScope.launch {
             val items = withContext(Dispatchers.IO) {
                 if (threadId <= 0) threadId = SmsRepository.threadIdForAddress(this@ThreadActivity, address)
@@ -136,7 +138,7 @@ class ThreadActivity : AppCompatActivity() {
 
     private fun reallySend(text: String) {
         try {
-            val key = prefs.getString("sms_shared_key", "").orEmpty()
+            val key = SecureKeys.smsKey(this)
             val encryptOn = b.encrypt.isChecked
             if (encryptOn && key.isBlank()) { toast("Set a shared SMS key in Settings first."); return }
 

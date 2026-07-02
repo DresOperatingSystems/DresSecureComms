@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.5.3
+
+### Security
+- The SMS shared key and the VirusTotal API key are now encrypted at rest with the Android
+  Keystore rather than stored in plaintext preferences. Existing values migrate transparently
+  on first read, so no re-entry is needed.
+
+### FOSS
+- The app now declares open_source and open_source_license metadata, so app managers such as
+  Inure correctly identify DresSecureComms as free and open source.
+
 ## 1.5.2
 
 ### Fixes

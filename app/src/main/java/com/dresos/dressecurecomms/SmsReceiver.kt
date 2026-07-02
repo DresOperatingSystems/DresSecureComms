@@ -1,11 +1,12 @@
 /* Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms
 
+import com.dresos.dressecurecomms.util.SecureKeys
+
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.crypto.SmsCrypto
 import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.Notify
@@ -19,8 +20,7 @@ class SmsReceiver : BroadcastReceiver() {
         if (messages.isEmpty()) return
         val sender = messages[0].originatingAddress ?: "Unknown"
         val body = messages.joinToString("") { it.messageBody ?: "" }
-        val key = PreferenceManager.getDefaultSharedPreferences(context)
-            .getString("sms_shared_key", "").orEmpty()
+        val key = SecureKeys.smsKey(context)
         val text = when {
             SmsCrypto.isEncrypted(body) && key.isNotBlank() ->
                 try { SmsCrypto.decrypt(body, key) } catch (e: Exception) { "[encrypted, wrong or missing key]" }

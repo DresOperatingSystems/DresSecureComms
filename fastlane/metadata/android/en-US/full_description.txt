@@ -16,10 +16,12 @@ hand or import them from the device.
 
 End Notes:
 
-We need your help to battle Google and its restrictions so if you use any of our projects, services or apps and it works for you then please tell a freind to tell a freind about us and whilst you're at it email these security vendors to tell them to stop relying on Google as it truly hurts peoples work like ours.
+We need your help to battle Google and its restrictions so if you use any of our projects, services or apps and it works for you then please tell a freind to tell a freind about us.
 
 Part of the DresOS Android privacy and defensive-security project.
 
 Website: https://dresoperatingsystems.github.io
+
 Source: https://github.com/DresOperatingSystems/DresSecureComms
+
 Donate: https://ko-fi.com/dresos

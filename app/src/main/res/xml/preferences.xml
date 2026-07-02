@@ -18,14 +18,14 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/set_cat_sms">
-        <EditTextPreference
+        <com.dresos.dressecurecomms.ui.EncryptedEditTextPreference
             app:key="sms_shared_key"
             app:title="@string/set_sms_key_title"
             app:summary="@string/set_sms_key_sub" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/set_cat_scan">
-        <EditTextPreference
+        <com.dresos.dressecurecomms.ui.EncryptedEditTextPreference
             app:key="virustotal_api_key"
             app:title="@string/set_vt_title"
             app:summary="@string/set_vt_sub" />
