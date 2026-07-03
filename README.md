@@ -100,6 +100,8 @@ Read our full [Privacy Policy](privacy_policy.md).
 
 A huge thank you to [Fossify](https://github.com/FossifyOrg). We used Fossify Messages, Fossify Phone and Fossify Contacts as references while building this app, and without them the MMS robustness and several other quality-of-life improvements would not have been possible.
 
+A huge thank you must also go to [Fake Traveler](https://github.com/mcastillof/FakeTraveler). Our mock location components are built on references from their application.
+
 ## Donate
 
 > **Help fund future development.** DresOS is built by a small open source team in our spare time. If our guide, Magisk modules or app saved you a weekend of research, please tip the jar. Funds go to test devices, dev stations, and developer time on updates and future projects.
