@@ -104,7 +104,7 @@ A huge thank you to [Fossify](https://github.com/FossifyOrg). We used Fossify Me
 
 A huge thank you must also go to [Fake Traveler](https://github.com/mcastillof/FakeTraveler). Our mock location components are built on references from their application.
 
-A huge thank you must also go to [URL Check](https://github.com/TrianguloY/URLCheck), As we used their scan part that connects to VirusTotal and built our scan engine up from that.
+A huge thank you must also go to [URL Check](https://github.com/TrianguloY/URLCheck), As we used their scan part that connects to VirusTotal and built our URL scan engine up from that.
 
 ## Donate
 
