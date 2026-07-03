@@ -7,15 +7,15 @@ and calls work fully offline on your normal carrier line.
 
 ## What it is
 
-It is a core part of [DresOS, the Android defensive security system](https://github.com/DresOperatingSystems/DresOS-The-Android-Defensive-Security-System).
+It is a core part of [DresOS, the Android defensive security system](https://github.com/The-DresOS-Foundation/DresOS-The-Android-Defensive-Security-System).
 Within DresOS, DresSecureComms takes over much of the day-to-day protection of the device,
 replacing several separate tools with a single hardened app so that messaging, calling, contacts, and on-device safety checks all run through one place you can trust.
 
 ## Download
 
->[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases)
+>[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/The-DresOS-Foundation/DresSecureComms/releases)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="50">](https://apt.izzysoft.de/packages/com.dresos.dressecurecomms)
-[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/The-DresOS-Foundation/DresSecureComms/releases)
 
 ## What it does
 
@@ -90,11 +90,15 @@ history stay on your device.
 
 ## License
 
-Apache-2.0. Copyright © 2026 DresOS.
+Apache-2.0. Copyright © 2026 The DresOS Foundation.
 
 ## Privacy & Permissions
 DresSecureComms requires SMS, Phone, and Location permissions to act as your secure, offline default Dialer and SMS app. We do not collect data. 
 Read our full [Privacy Policy](privacy_policy.md).
+
+## Thanks
+
+A huge thank you to [Fossify](https://github.com/FossifyOrg). We used Fossify Messages, Fossify Phone and Fossify Contacts as references while building this app, and without them the MMS robustness and several other quality-of-life improvements would not have been possible.
 
 ## Donate
 

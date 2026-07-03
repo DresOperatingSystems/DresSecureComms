@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.6.0
+
+### Added
+- Incoming picture messages are now fully supported. Photos download automatically, appear inside the conversation, raise a notification, and picture-only conversations show up in the message list.
+
+### Fixed
+- Sending a photo or a group message no longer crashes. The bundled MMS classes were being rewritten by the code optimiser and colliding with Android's own framework classes at send time.
+- Messages you send now appear in the conversation straight away and remain in your history, whether or not the app is set as the default SMS app.
+
+### Changed
+- The in-call keypad and the call control buttons are now much larger and easier to tap.
+- Message notifications now carry a Copy action, and tapping a notification opens the conversation.
+
+### Project
+- Renamed to The DresOS Foundation and moved to the new organisation. The site is now at dresos.org and contact is security@dresos.org.
+
+## Coming soon
+- Importing your own PGP, age or SSH ED25519 keys to sign your messages.
+
 ## 1.5.3
 
 ### Security

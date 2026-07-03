@@ -4,11 +4,28 @@
     android:layout_height="wrap_content"
     android:paddingVertical="4dp">
 
-    <TextView
+    <LinearLayout
         android:id="@+id/bubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="280dp"
-        android:padding="12dp"
-        android:textColor="?attr/colorOnSurface" />
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="240dp"
+            android:maxHeight="260dp"
+            android:adjustViewBounds="true"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="280dp"
+            android:padding="4dp"
+            android:textColor="?attr/colorOnSurface" />
+    </LinearLayout>
 </FrameLayout>

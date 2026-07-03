@@ -14,3 +14,13 @@
 -keep class android.security.keystore.** { *; }
 -keep class androidx.biometric.** { *; }
 -keep class com.dresos.dressecurecomms.net.** { *; }
+
+-keep class com.google.android.mms.** { *; }
+-keep class com.android.mms.** { *; }
+-keep class com.klinker.android.** { *; }
+-keep class com.android.i18n.** { *; }
+-keep class com.google.android.collect.** { *; }
+-keep class org.w3c.dom.** { *; }
+-dontwarn com.android.**
+-dontwarn com.google.android.mms.**
+-dontwarn org.w3c.dom.**

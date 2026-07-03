@@ -20,8 +20,8 @@ We need your help to battle Google and its restrictions so if you use any of our
 
 Part of the DresOS Android privacy and defensive-security project.
 
-Website: https://dresoperatingsystems.github.io
+Website: https://dresos.org
 
-Source: https://github.com/DresOperatingSystems/DresSecureComms
+Source: https://github.com/The-DresOS-Foundation/DresSecureComms
 
 Donate: https://ko-fi.com/dresos

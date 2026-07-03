@@ -124,9 +124,9 @@
             </intent-filter>
         </receiver>
 
-        <!-- Incoming MMS for the default SMS app (placeholder, not yet handled) -->
+        <!-- Incoming MMS download (WAP push handled by the send library) -->
         <receiver
-            android:name=".MmsReceiver"
+            android:name="com.android.mms.transaction.PushReceiver"
             android:permission="android.permission.BROADCAST_WAP_PUSH"
             android:exported="true">
             <intent-filter>
@@ -134,6 +134,12 @@
                 <data android:mimeType="application/vnd.wap.mms-message" />
             </intent-filter>
         </receiver>
+
+        <!-- Incoming MMS, delivered once downloaded and stored -->
+        <receiver
+            android:name=".MmsReceiver"
+            android:exported="true"
+            android:taskAffinity="com.klinker.android.messaging.MMS_RECEIVED" />
 
         <!-- Quick-reply service (required for the default SMS-app role) -->
         <service
@@ -187,5 +193,8 @@
                 <action android:name="android.telecom.CallScreeningService" />
             </intent-filter>
         </service>
+        <receiver
+            android:name=".util.NotificationActionReceiver"
+            android:exported="false" />
     </application>
 </manifest>

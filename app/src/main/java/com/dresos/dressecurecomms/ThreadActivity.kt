@@ -1,4 +1,4 @@
-/* Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0. */
+/* Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms
 
 import com.dresos.dressecurecomms.util.SecureKeys
@@ -19,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.crypto.SmsCrypto
 import com.dresos.dressecurecomms.data.ContactsStore
 import com.dresos.dressecurecomms.data.SmsRepository
@@ -30,7 +29,6 @@ import com.google.android.material.snackbar.Snackbar
 
 class ThreadActivity : AppCompatActivity() {
     private lateinit var b: ActivityThreadBinding
-    private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
     private lateinit var address: String
     private var threadId: Long = -1L
     private lateinit var adapter: MessageAdapter
@@ -129,7 +127,7 @@ class ThreadActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val items = withContext(Dispatchers.IO) {
                 if (threadId <= 0) threadId = SmsRepository.threadIdForAddress(this@ThreadActivity, address)
-                SmsRepository.threadById(this@ThreadActivity, threadId, key)
+                SmsRepository.threadById(this@ThreadActivity, threadId, address, key)
             }
             adapter.setItems(items)
             b.list.setSelection(adapter.count - 1)
@@ -153,14 +151,17 @@ class ThreadActivity : AppCompatActivity() {
                 val payload = if (encryptOn) SmsCrypto.encrypt(text, key) else text
                 val sm = smsManager()
                 sm.sendMultipartTextMessage(address, null, sm.divideMessage(payload), null, null)
-                SmsStore.add(this, address, text, System.currentTimeMillis())
-                if (Telephony.Sms.getDefaultSmsPackage(this) == packageName) {
+                val now = System.currentTimeMillis()
+                SmsStore.add(this, address, text, now)
+                if (SmsRepository.isDefault(this)) {
                     try {
+                        if (threadId <= 0) threadId = SmsRepository.threadIdForAddress(this, address)
                         val values = android.content.ContentValues().apply {
                             put(Telephony.Sms.ADDRESS, address)
                             put(Telephony.Sms.BODY, payload)
-                            put(Telephony.Sms.DATE, System.currentTimeMillis())
+                            put(Telephony.Sms.DATE, now)
                             put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_SENT)
+                            if (threadId > 0) put(Telephony.Sms.THREAD_ID, threadId)
                         }
                         contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
                     } catch (_: Exception) {
@@ -186,8 +187,6 @@ class ThreadActivity : AppCompatActivity() {
                 }
             }
             if (ok) {
-                val note = if (image != null) text.ifBlank { "[photo]" } else text
-                SmsStore.add(this@ThreadActivity, address, note, System.currentTimeMillis())
                 pendingImage = null
                 updateAttachUi()
                 b.input.setText("")

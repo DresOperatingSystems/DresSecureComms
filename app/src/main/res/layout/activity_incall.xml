@@ -32,30 +32,30 @@
     <!-- DTMF keypad, shown when Keypad is tapped -->
     <LinearLayout
         android:id="@+id/dtmfPanel"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone">
 
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="1" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="2" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="3" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="1" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="2" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="3" />
         </LinearLayout>
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="4" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="5" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="6" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="4" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="5" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="6" />
         </LinearLayout>
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="7" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="8" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="9" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="7" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="8" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="9" />
         </LinearLayout>
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="*" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="0" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="72dp" android:layout_height="52dp" android:text="#" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="*" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="0" />
+            <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="#" />
         </LinearLayout>
     </LinearLayout>
 
@@ -77,6 +77,7 @@
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="60dp"
                 android:layout_weight="1"
                 android:layout_margin="6dp"
                 android:text="@string/mute" />
@@ -86,6 +87,7 @@
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="60dp"
                 android:layout_weight="1"
                 android:layout_margin="6dp"
                 android:text="@string/speaker" />
@@ -95,6 +97,7 @@
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="60dp"
                 android:layout_weight="1"
                 android:layout_margin="6dp"
                 android:text="@string/keypad" />
@@ -110,6 +113,7 @@
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="60dp"
                 android:layout_weight="1"
                 android:layout_margin="6dp"
                 android:text="@string/hold" />
@@ -119,6 +123,7 @@
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="60dp"
                 android:layout_weight="1"
                 android:layout_margin="6dp"
                 android:text="@string/add_call" />
@@ -140,6 +145,11 @@
             android:id="@+id/answerBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="150dp"
+            android:minHeight="64dp"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            android:textSize="16sp"
             android:layout_marginEnd="24dp"
             android:backgroundTint="@color/dres_green"
             android:text="@string/answer"
@@ -149,6 +159,11 @@
             android:id="@+id/declineBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="150dp"
+            android:minHeight="64dp"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            android:textSize="16sp"
             android:backgroundTint="@color/dres_red"
             android:text="@string/hang_up"
             android:textColor="@android:color/white" />

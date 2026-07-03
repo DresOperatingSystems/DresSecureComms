@@ -1,1 +1,1 @@
-https://github.com/DresOperatingSystems/DresSecureComms
+https://github.com/The-DresOS-Foundation/DresSecureComms

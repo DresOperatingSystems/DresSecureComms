@@ -1,4 +1,4 @@
-/* Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0. */
+/* Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms.location
 
 import android.content.Context

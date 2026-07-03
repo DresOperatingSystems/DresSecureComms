@@ -3,10 +3,10 @@
     <string name="app_name">DresSecureComms</string>
     <string name="tagline">All-in-one secure communications</string>
 
-    <string name="website_url">https://dresoperatingsystems.github.io</string>
+    <string name="website_url">https://dresos.org</string>
     <string name="kofi_url">https://ko-fi.com/dresos</string>
-    <string name="contact_email">jet-steam-armored@duck.com</string>
-    <string name="os_url">https://github.com/DresOperatingSystems/DresOS-The-Android-Defensive-Security-System</string>
+    <string name="contact_email">security@dresos.org</string>
+    <string name="os_url">https://github.com/The-DresOS-Foundation/DresOS-The-Android-Defensive-Security-System</string>
     <string name="about_os">Our Android OS</string>
     <string name="source_url">https://github.com/DresOperatingSystems/DresSecureComms</string>
 

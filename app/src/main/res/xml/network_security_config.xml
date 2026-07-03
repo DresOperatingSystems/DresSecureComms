@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0.
+  Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0.
 
   The app's only network endpoint is the VirusTotal API, contacted solely when the user runs a
   manual URL threat scan with their own API key. This config:

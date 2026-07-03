@@ -28,6 +28,7 @@ How it works:
 - For encrypted SMS, share the key with your contact by hand. Only this app can read it.
 
 Coming soon:
+- Importing your own PGP, age or SSH ED25519 keys to sign the messages you send.
 - A spam call shield that recognises and blocks known spam and scam callers before your
   phone rings.
 - Stronger encryption across more of the app, not just messages and the contact vault.
