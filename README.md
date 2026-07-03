@@ -88,7 +88,6 @@ No accounts. No analytics. No advertising. No Google or third-party services bey
 VirusTotal lookup you trigger yourself in Threat Scan. Your messages, contacts, and call
 history stay on your device.
 
-[All Virus Checks Passed](https://www.virustotal.com/gui/file/0f39a18ff07bee0dbcb37ce90f5293fc65605ceeaffec7732686a1947ab5efa8/detection/f-0f39a18ff07bee0dbcb37ce90f5293fc65605ceeaffec7732686a1947ab5efa8-1782908592)
 ## License
 
 Apache-2.0. Copyright © 2026 The DresOS Foundation.
@@ -96,6 +95,8 @@ Apache-2.0. Copyright © 2026 The DresOS Foundation.
 ## Privacy & Permissions
 DresSecureComms requires SMS, Phone, and Location permissions to act as your secure, offline default Dialer and SMS app. We do not collect data. 
 Read our full [Privacy Policy](privacy_policy.md).
+
+[All Virus Checks Passed](https://www.virustotal.com/gui/file/0f39a18ff07bee0dbcb37ce90f5293fc65605ceeaffec7732686a1947ab5efa8/detection/f-0f39a18ff07bee0dbcb37ce90f5293fc65605ceeaffec7732686a1947ab5efa8-1782908592)
 
 ## Thanks
 
