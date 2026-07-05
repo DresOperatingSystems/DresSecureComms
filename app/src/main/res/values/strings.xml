@@ -10,7 +10,6 @@
     <string name="about_os">Our Android OS</string>
     <string name="source_url">https://github.com/DresOperatingSystems/DresSecureComms</string>
 
-    <!-- Home cards -->
     <string name="card_messages_title">Messages</string>
     <string name="card_messages_sub">Send and receive SMS, with optional app-to-app encryption</string>
     <string name="card_calls_title">Calls</string>
@@ -19,6 +18,12 @@
     <string name="card_contacts_sub">Encrypted local contacts vault</string>
     <string name="card_scan_title">Threat Scan</string>
     <string name="card_scan_sub">Check a URL against VirusTotal</string>
+    <string name="number_copied">Number copied</string>
+    <string name="message_copied">Message copied</string>
+    <string name="copy_number">Copy number</string>
+    <string name="save_to_contacts">Save to contacts</string>
+    <string name="card_filescan_title">File Scan</string>
+    <string name="card_filescan_sub">Scan a file for malware (coming soon)</string>
     <string name="card_meta_title">Metadata Wipe</string>
     <string name="card_meta_sub">Strip location and EXIF data from a photo</string>
     <string name="card_settings_title">Settings</string>
@@ -26,18 +31,15 @@
     <string name="card_about_title">About</string>
     <string name="card_about_sub">Version, links, how it works</string>
 
-    <!-- Messages -->
     <string name="new_message">New message</string>
     <string name="recipient_hint">Recipient number</string>
     <string name="message_hint">Message</string>
     <string name="encrypt_switch">Encrypt (recipient must have DresSecureComms)</string>
     <string name="send">Send</string>
 
-    <!-- Calls -->
     <string name="dial_hint">Enter a number</string>
     <string name="call">Call</string>
 
-    <!-- Contacts -->
     <string name="edit_contact">Edit contact</string>
     <string name="email_hint">Email (optional)</string>
     <string name="add_contact">Add contact</string>
@@ -45,7 +47,6 @@
     <string name="name_hint">Name</string>
     <string name="number_hint">Number</string>
 
-    <!-- About -->
     <string name="about_blurb">DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app. It works fully offline for SMS and calls, with no trackers and no Google services. Messages can be end-to-end encrypted between two people who both use this app.</string>
     <string name="about_website">Website</string>
     <string name="about_donate">Donate on Ko-fi</string>
@@ -53,7 +54,6 @@
     <string name="about_source">Source code on GitHub</string>
     <string name="about_manual">How it works (manual)</string>
 
-    <!-- Settings -->
     <string name="set_cat_sms">Encrypted SMS</string>
     <string name="set_sms_key_title">Shared SMS key</string>
     <string name="set_sms_key_sub">A secret phrase you share, by hand, with the person you message. Both sides must use the same phrase, and both must use this app.</string>
@@ -73,7 +73,6 @@
     <string name="set_shot_title">Block screenshots</string>
     <string name="set_shot_sub">Stop screenshots, screen recording, and recents previews inside the app. Takes effect on each screen you open next.</string>
 
-    <!-- In-call -->
     <string name="answer">Answer</string>
     <string name="decline">Decline</string>
     <string name="hang_up">Hang up</string>
@@ -91,7 +90,6 @@
     <string name="call_active">On call</string>
     <string name="call_holding">On hold</string>
 
-    <!-- Default apps -->
     <string name="set_cat_default">Default apps</string>
     <string name="set_default_sms_title">Set as default SMS app</string>
     <string name="set_default_sms_sub">Needed to send and receive texts inside the app</string>

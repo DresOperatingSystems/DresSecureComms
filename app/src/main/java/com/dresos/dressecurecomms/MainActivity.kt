@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ContactsActivity::class.java))
         }
         card(binding.cardScan, R.drawable.ic_scan, R.string.card_scan_title, R.string.card_scan_sub) { scanUrlDialog() }
+        card(binding.cardFileScan, R.drawable.ic_scan, R.string.card_filescan_title, R.string.card_filescan_sub) { fileScanDialog() }
         card(binding.cardMeta, R.drawable.ic_meta, R.string.card_meta_title, R.string.card_meta_sub) {
             pickImage.launch(arrayOf("image/*"))
         }
@@ -183,6 +184,16 @@ class MainActivity : AppCompatActivity() {
         b.cardTitle.setText(title)
         b.cardSub.setText(sub)
         b.root.setOnClickListener { onClick() }
+    }
+
+    private fun fileScanDialog() {
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("File Scan")
+            .setMessage("This engine will be implemented soon. It is currently being built from Hypatia's scan engine.")
+            .setPositiveButton("OK", null)
+            .create()
+        dialog.applyScreenshotPolicy(this)
+        dialog.show()
     }
 
     private fun scanUrlDialog() {

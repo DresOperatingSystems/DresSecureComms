@@ -15,3 +15,5 @@ keystore.properties
 node_modules/
 .env
 dist/
+app/build/
+/build/

@@ -2,6 +2,7 @@
 package com.dresos.dressecurecomms
 
 import com.dresos.dressecurecomms.util.SecureKeys
+import com.dresos.dressecurecomms.util.Actions
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -83,9 +84,25 @@ class ThreadActivity : AppCompatActivity() {
                 .show()
             true
         }
+        if (recipients.size == 1) {
+            b.toolbar.menu.add(0, 2, 0, "Call").setOnMenuItemClickListener {
+                Actions.dial(this, address); true
+            }
+            b.toolbar.menu.add(0, 3, 0, "Save to contacts").setOnMenuItemClickListener {
+                Actions.saveToContacts(this, address); true
+            }
+            b.toolbar.menu.add(0, 4, 0, "Copy number").setOnMenuItemClickListener {
+                Actions.copy(this, "number", address); toast(getString(R.string.number_copied)); true
+            }
+        }
 
         adapter = MessageAdapter(this, emptyList())
         b.list.adapter = adapter
+        b.list.setOnItemLongClickListener { _, _, position, _ ->
+            val body = adapter.getItem(position).body
+            if (body.isNotBlank()) { Actions.copy(this, "message", body); toast(getString(R.string.message_copied)) }
+            true
+        }
         b.encrypt.isChecked = SecureKeys.smsKey(this).isNotBlank()
 
         b.attachBtn.setOnClickListener { pickImage.launch("image/*") }

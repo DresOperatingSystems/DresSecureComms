@@ -27,9 +27,31 @@
         android:textColor="?attr/colorOnSurfaceVariant"
         tools:text="Active" />
 
+    <LinearLayout
+        android:id="@+id/numberActions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/copyNumberBtn"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/copy_number" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveContactBtn"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save_to_contacts" />
+    </LinearLayout>
+
     <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
 
-    <!-- DTMF keypad, shown when Keypad is tapped -->
     <LinearLayout
         android:id="@+id/dtmfPanel"
         android:layout_width="match_parent"
@@ -59,7 +81,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- In-call controls, shown once the call is dialing/active -->
     <LinearLayout
         android:id="@+id/controlsGrid"
         android:layout_width="match_parent"

@@ -42,6 +42,7 @@
             <include android:id="@+id/cardCalls" layout="@layout/card_item" />
             <include android:id="@+id/cardContacts" layout="@layout/card_item" />
             <include android:id="@+id/cardScan" layout="@layout/card_item" />
+            <include android:id="@+id/cardFileScan" layout="@layout/card_item" />
             <include android:id="@+id/cardMeta" layout="@layout/card_item" />
             <include android:id="@+id/cardSettings" layout="@layout/card_item" />
             <include android:id="@+id/cardAbout" layout="@layout/card_item" />

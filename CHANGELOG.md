@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.1
+
+### Fixed
+- The URL scanner no longer freezes. It had been polling VirusTotal every few seconds for up to a minute, which stalled the scan and tripped the free tier rate limit. It now checks the link in a single request the way VirusTotal expects: if the link has been seen before the result comes back immediately, otherwise it is submitted and you tap Scan again in about a minute.
+- Save to contacts now works. It asks for a name and saves the number into your encrypted contacts vault; before, it tried to hand off to an external contacts app that does not exist on a de-Googled device, so nothing happened.
+
+### Added
+- During a call you can copy the number or save it to your contacts.
+- In a conversation you can call the number, save it to your contacts, or copy it, and long pressing a message copies its text.
+- Call log entries and conversations now open a full action menu on tap or long press: Call, Message, Save to contacts, Copy number, and Delete.
+- A new File Scan section. Its engine is being built from Hypatia's scanner and will arrive in a later update.
+
 ## 1.6.0
 
 ### Added
@@ -15,9 +27,6 @@
 
 ### Project
 - Renamed to The DresOS Foundation and moved to the new organisation. The site is now at dresos.org and contact is security@dresos.org.
-
-## Coming soon
-- Importing your own PGP, age or SSH ED25519 keys to sign your messages.
 
 ## 1.5.3
 
@@ -53,6 +62,7 @@
 - Contact name resolution for lists runs off the main thread.
 
 ## Coming soon
+- Importing your own PGP, age or SSH ED25519 keys to sign your messages.
 - A spam call shield that recognises and blocks known spam and scam callers before your
   phone rings.
 - Stronger encryption across more of the app, beyond messages and the contact vault.

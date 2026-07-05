@@ -10,9 +10,11 @@ import android.telecom.Call
 import android.telecom.VideoProfile
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.dresos.dressecurecomms.databinding.ActivityIncallBinding
+import com.dresos.dressecurecomms.util.Actions
 import com.dresos.dressecurecomms.util.Contacts
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +24,7 @@ import kotlinx.coroutines.withContext
 class InCallActivity : AppCompatActivity() {
     private lateinit var b: ActivityIncallBinding
     private var callerName: String? = null
+    private var phoneNumber: String? = null
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = render()
@@ -39,12 +42,21 @@ class InCallActivity : AppCompatActivity() {
         call.registerCallback(callback)
 
         val number = call.details.handle?.schemeSpecificPart
+        phoneNumber = number
         if (!number.isNullOrBlank()) {
+            b.numberActions.visibility = View.VISIBLE
             lifecycleScope.launch {
                 val name = withContext(Dispatchers.IO) { Contacts.nameFor(this@InCallActivity, number) }
                 callerName = name
                 b.number.text = name
             }
+        }
+
+        b.copyNumberBtn.setOnClickListener {
+            phoneNumber?.let { Actions.copy(this, "number", it); toast(getString(R.string.number_copied)) }
+        }
+        b.saveContactBtn.setOnClickListener {
+            phoneNumber?.let { Actions.saveToContacts(this, it) }
         }
 
         b.answerBtn.setOnClickListener { CallManager.call?.answer(VideoProfile.STATE_AUDIO_ONLY) }
@@ -146,4 +158,6 @@ class InCallActivity : AppCompatActivity() {
         super.onDestroy()
         CallManager.call?.unregisterCallback(callback)
     }
+
+    private fun toast(s: String) = Toast.makeText(this, s, Toast.LENGTH_SHORT).show()
 }

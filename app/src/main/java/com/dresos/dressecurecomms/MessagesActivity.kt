@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.data.ContactsStore
+import com.dresos.dressecurecomms.util.Actions
 import com.dresos.dressecurecomms.data.SmsRepository
 import com.dresos.dressecurecomms.databinding.ActivityMessagesBinding
 import com.dresos.dressecurecomms.ui.TwoLineAdapter
@@ -49,7 +50,7 @@ class MessagesActivity : AppCompatActivity() {
             openThread(c.address, c.threadId)
         }
         b.list.setOnItemLongClickListener { _, _, pos, _ ->
-            confirmDelete(adapter.getItem(pos)); true
+            conversationActions(adapter.getItem(pos)); true
         }
         b.fab.setOnClickListener { newMessage() }
 
@@ -91,6 +92,37 @@ class MessagesActivity : AppCompatActivity() {
                 if (n.isNotEmpty()) openThread(n)
             }
             .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun snack(text: String) =
+        com.google.android.material.snackbar.Snackbar.make(b.root, text, com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+
+    private fun conversationActions(c: SmsRepository.Conversation) {
+        val group = c.address.contains(',') || c.address.contains(';')
+        if (group) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(nameFor(c.address))
+                .setItems(arrayOf("Open", "Delete")) { _, which ->
+                    when (which) {
+                        0 -> openThread(c.address, c.threadId)
+                        1 -> confirmDelete(c)
+                    }
+                }
+                .show()
+            return
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(nameFor(c.address))
+            .setItems(arrayOf("Call", "Message", "Save to contacts", "Copy number", "Delete")) { _, which ->
+                when (which) {
+                    0 -> Actions.dial(this, c.address)
+                    1 -> openThread(c.address, c.threadId)
+                    2 -> Actions.saveToContacts(this, c.address)
+                    3 -> { Actions.copy(this, "number", c.address); snack(getString(R.string.number_copied)) }
+                    4 -> confirmDelete(c)
+                }
+            }
             .show()
     }
 

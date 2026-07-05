@@ -3,6 +3,7 @@ package com.dresos.dressecurecomms
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.dresos.dressecurecomms.data.CallHistory
 import com.dresos.dressecurecomms.databinding.ActivityCallsBinding
 import com.dresos.dressecurecomms.ui.TwoLineAdapter
+import com.dresos.dressecurecomms.util.Actions
 import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -61,8 +63,7 @@ class CallsActivity : AppCompatActivity() {
             nameFor(e.number) to "${CallHistory.typeLabel(e.type)} · ${DateUtils.getRelativeTimeSpanString(e.date)}"
         }
         b.list.adapter = adapter
-        b.list.setOnItemClickListener { _, _, pos, _ -> b.number.setText(adapter.getItem(pos).number) }
-        b.list.setOnItemLongClickListener { _, _, pos, _ -> entryActions(adapter.getItem(pos)); true }
+        b.list.setOnItemClickListener { _, _, pos, _ -> entryActions(adapter.getItem(pos)) }
 
         intent.getStringExtra("number")?.let { b.number.setText(it) }
         (if (intent?.data?.scheme == "tel") intent.data?.schemeSpecificPart else null)?.let { b.number.setText(it) }
@@ -97,10 +98,13 @@ class CallsActivity : AppCompatActivity() {
     private fun entryActions(e: CallHistory.Entry) {
         MaterialAlertDialogBuilder(this)
             .setTitle(nameFor(e.number))
-            .setItems(arrayOf("Call", "Delete")) { _, which ->
+            .setItems(arrayOf("Call", "Message", "Save to contacts", "Copy number", "Delete")) { _, which ->
                 when (which) {
                     0 -> { b.number.setText(e.number); if (hasCall()) place() else requestCall.launch(Manifest.permission.CALL_PHONE) }
-                    1 -> deleteEntry(e.id)
+                    1 -> startActivity(Intent(this, ThreadActivity::class.java).putExtra("address", e.number))
+                    2 -> Actions.saveToContacts(this, e.number)
+                    3 -> { Actions.copy(this, "number", e.number); snack(getString(R.string.number_copied)) }
+                    4 -> deleteEntry(e.id)
                 }
             }
             .show()

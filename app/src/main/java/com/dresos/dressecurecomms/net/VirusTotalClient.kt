@@ -20,10 +20,29 @@ object VirusTotalClient {
         if (apiKey.isBlank()) return "Add your VirusTotal API key in Settings first."
         if (url.isBlank()) return "Enter a URL to scan."
         return try {
-            lookupExisting(url, apiKey) ?: run {
-                val analysisId = submit(url, apiKey) ?: return "Could not start the scan."
-                poll(analysisId, apiKey, url)
-                    ?: "Site: $url\n\nVirusTotal is analyzing this URL for the first time. Try again in a minute."
+            val id = Base64.encodeToString(
+                url.toByteArray(Charsets.UTF_8),
+                Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
+            )
+            val req = Request.Builder().url("$BASE/urls/$id").header("x-apikey", apiKey).get().build()
+            client.newCall(req).execute().use { resp ->
+                when (resp.code) {
+                    401 -> return "Invalid API key. Check it in Settings."
+                    429 -> throw RateLimited()
+                    404 -> {
+                        submit(url, apiKey)
+                        return analyzing(url)
+                    }
+                }
+                if (!resp.isSuccessful) return "VirusTotal returned an error (${resp.code}). Try again shortly."
+                val attr = JSONObject(resp.body?.string().orEmpty())
+                    .optJSONObject("data")?.optJSONObject("attributes")
+                val stats = attr?.optJSONObject("last_analysis_stats")
+                if (attr == null || !attr.has("last_analysis_date") || stats == null || stats.length() == 0) {
+                    analyzing(url)
+                } else {
+                    format(url, stats)
+                }
             }
         } catch (e: RateLimited) {
             e.message ?: "Rate limited. Wait a minute and try again."
@@ -34,26 +53,8 @@ object VirusTotalClient {
         }
     }
 
-    private fun lookupExisting(url: String, apiKey: String): String? {
-        val id = Base64.encodeToString(
-            url.toByteArray(Charsets.UTF_8),
-            Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
-        )
-        val req = Request.Builder().url("$BASE/urls/$id").header("x-apikey", apiKey).get().build()
-        client.newCall(req).execute().use { resp ->
-            when (resp.code) {
-                404 -> return null
-                429 -> throw RateLimited()
-                401 -> throw IllegalStateException("Invalid API key.")
-            }
-            if (!resp.isSuccessful) return null
-            val attr = JSONObject(resp.body?.string().orEmpty())
-                .optJSONObject("data")?.optJSONObject("attributes")
-            val stats = attr?.optJSONObject("last_analysis_stats") ?: return null
-            if (stats.length() == 0) return null
-            return format(url, stats)
-        }
-    }
+    private fun analyzing(url: String): String =
+        "Site: $url\n\nVirusTotal is analyzing this link now. Tap Scan again in about a minute to see the result."
 
     private fun submit(url: String, apiKey: String): String? {
         val req = Request.Builder()
@@ -68,24 +69,6 @@ object VirusTotalClient {
             if (!resp.isSuccessful) throw IllegalStateException("Submit failed (${resp.code}). ${shortErr(body)}")
             return JSONObject(body).optJSONObject("data")?.optString("id").takeIf { !it.isNullOrEmpty() }
         }
-    }
-
-    private fun poll(analysisId: String, apiKey: String, url: String): String? {
-        repeat(15) {
-            val req = Request.Builder()
-                .url("$BASE/analyses/$analysisId").header("x-apikey", apiKey).get().build()
-            client.newCall(req).execute().use { resp ->
-                val body = resp.body?.string().orEmpty()
-                if (resp.code == 429) throw RateLimited()
-                if (!resp.isSuccessful) throw IllegalStateException("Report failed (${resp.code}). ${shortErr(body)}")
-                val attr = JSONObject(body).optJSONObject("data")?.optJSONObject("attributes")
-                if (attr?.optString("status") == "completed") {
-                    return format(url, attr.optJSONObject("stats"))
-                }
-            }
-            Thread.sleep(5000)
-        }
-        return null
     }
 
     private fun format(url: String, stats: JSONObject?): String {
