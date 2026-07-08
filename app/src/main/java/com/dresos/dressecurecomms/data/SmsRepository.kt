@@ -260,9 +260,13 @@ object SmsRepository {
         return ""
     }
 
-    private fun decode(body: String, key: String): String = when {
-        !SmsCrypto.isEncrypted(body) -> body
-        key.isBlank() -> "[encrypted, set the shared key in Settings]"
-        else -> try { SmsCrypto.decrypt(body, key) } catch (e: Exception) { "[encrypted, wrong key]" }
+    private fun decode(body: String, key: String): String = try {
+        when {
+            !SmsCrypto.isEncrypted(body) -> body
+            key.isBlank() -> "[encrypted, set the shared key in Settings]"
+            else -> try { SmsCrypto.decrypt(body, key) } catch (e: Exception) { "[encrypted, wrong key]" }
+        }
+    } catch (e: Exception) {
+        body
     }
 }

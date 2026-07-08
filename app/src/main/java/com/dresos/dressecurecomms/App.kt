@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
 import android.os.Process
 import android.util.Log
 import android.view.WindowManager
@@ -37,6 +38,14 @@ class App : Application() {
     private fun installCrashHandler() {
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
+            if (fromMmsLibrary(error)) {
+                Log.e("App", "swallowed MMS library failure", error)
+                if (thread != Looper.getMainLooper().thread) {
+                    return@setDefaultUncaughtExceptionHandler
+                }
+                Process.killProcess(Process.myPid())
+                exitProcess(1)
+            }
             try {
                 startActivity(
                     Intent(this, CrashActivity::class.java)
@@ -49,5 +58,20 @@ class App : Application() {
             Process.killProcess(Process.myPid())
             exitProcess(1)
         }
+    }
+
+    private fun fromMmsLibrary(error: Throwable): Boolean {
+        var t: Throwable? = error
+        while (t != null) {
+            if (t.stackTrace.any {
+                    it.className.startsWith("com.klinker.android") ||
+                        it.className.startsWith("com.android.mms") ||
+                        it.className.startsWith("com.google.android.mms")
+                }) {
+                return true
+            }
+            t = t.cause
+        }
+        return false
     }
 }

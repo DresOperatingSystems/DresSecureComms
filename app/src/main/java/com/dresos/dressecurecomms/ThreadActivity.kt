@@ -163,7 +163,7 @@ class ThreadActivity : AppCompatActivity() {
             val isGroup = recipients.size > 1
 
             if (isGroup || hasImage) {
-                sendMms(recipients, text, pendingImage, encryptOn, key)
+                sendMms(recipients, text, pendingImage, encryptOn)
             } else {
                 val payload = if (encryptOn) SmsCrypto.encrypt(text, key) else text
                 val sm = smsManager()
@@ -192,12 +192,12 @@ class ThreadActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendMms(recipients: List<String>, text: String, image: Uri?, encryptOn: Boolean, key: String) {
-        toast("Sending MMS...")
+    private fun sendMms(recipients: List<String>, text: String, image: Uri?, encryptOn: Boolean) {
+        toast(if (encryptOn) "Sending picture unencrypted..." else "Sending MMS...")
         lifecycleScope.launch {
             val ok = withContext(Dispatchers.IO) {
                 try {
-                    MmsSender.send(this@ThreadActivity, recipients, text.ifBlank { null }, image, encryptOn, key, threadId)
+                    MmsSender.send(this@ThreadActivity, recipients, text.ifBlank { null }, image, threadId)
                     true
                 } catch (e: Exception) {
                     e.printStackTrace(); false

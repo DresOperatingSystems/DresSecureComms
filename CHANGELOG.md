@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.2
+
+### Fixed
+- Receiving a picture is far more robust. Failures inside the system's picture-download handling used to take the whole app down; they are now caught and contained instead of crashing the app, and the app's own handling of an arriving picture is fully guarded.
+- Pictures you send now actually reach the other person. They are compressed to a carrier-safe size before sending, so they are no longer silently dropped in transit for being too large.
+
+### Changed
+- Pictures and group messages (MMS) are now always sent unencrypted so they arrive readable on any phone. Encryption still applies to SMS text. When you send a picture with encryption switched on, the app tells you it is going unencrypted.
+
 ## 1.6.1
 
 ### Fixed

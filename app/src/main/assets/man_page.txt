@@ -26,6 +26,7 @@ How it works:
 - SMS and calls work fully offline on your carrier line. No Google services, no trackers.
 - Internet is only used by Threat Scan.
 - For encrypted SMS, share the key with your contact by hand. Only this app can read it.
+- Encryption covers SMS text only. Pictures and group messages (MMS) are always sent unencrypted, the same as any normal messaging app, so they arrive readable on any phone.
 
 Coming soon:
 - A spam call shield that recognises and blocks known spam and scam callers before your
@@ -34,6 +35,8 @@ Coming soon:
 - The next Threat Scan engine, now close to complete, extends scanning to media, files,
   APKs, ZIPs, and effectively any content. That engine stays under wraps for now.
 - Several smaller refinements throughout.
+
+We are currently experiencing problems with MMS. Although we are applying patches around the MMS parts to make them more robust, we are a very small team. To make our jobs easier, if MMS does crash for you for instance, when you send or receive photos please get a bug report either via logcat or another service and send it to the DresOS team via email. This will help us pinpoint the exact cause of the crash and apply a fix right away, so we are not just shooting in the dark.
 
 DresSecureComms is a core part of DresOS, the Android defensive security system. It brings
 private messaging, calling, contacts, threat scanning, and location protection together in
