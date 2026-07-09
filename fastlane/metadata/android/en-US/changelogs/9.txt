@@ -1,0 +1,1 @@
+Forces incoming and outgoing picture messages through Android own MMS handling, which should fix the crash and pictures not arriving on many networks. Adds a one-tap Share report on the crash screen and Share crash log in Settings so you can send us the full error to help fix MMS. Photos keep their correct rotation and are sized to send reliably.

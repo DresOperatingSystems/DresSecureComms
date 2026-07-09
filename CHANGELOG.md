@@ -1,9 +1,9 @@
 # Changelog
 
-## 1.6.2
+## 1.6.3
 
 ### Fixed
-- Receiving a picture is far more robust. Failures inside the system's picture-download handling used to take the whole app down; they are now caught and contained instead of crashing the app, and the app's own handling of an arriving picture is fully guarded.
+- Receiving a picture now works and no longer crashes the app. Incoming pictures are downloaded through Android's own MMS handling, which fixes both the crash and the picture never arriving, and any remaining download failure is contained instead of taking the app down.
 - Pictures you send now actually reach the other person. They are compressed to a carrier-safe size before sending, so they are no longer silently dropped in transit for being too large.
 
 ### Changed
@@ -16,6 +16,7 @@
 - Save to contacts now works. It asks for a name and saves the number into your encrypted contacts vault; before, it tried to hand off to an external contacts app that does not exist on a de-Googled device, so nothing happened.
 
 ### Added
+- If the app ever crashes, you can now send us the full error in one tap: a Share report button on the crash screen, and a Share crash log option in Settings, both attach the complete report to an email. This is the single most useful thing you can do to help us fix MMS problems.
 - During a call you can copy the number or save it to your contacts.
 - In a conversation you can call the number, save it to your contacts, or copy it, and long pressing a message copies its text.
 - Call log entries and conversations now open a full action menu on tap or long press: Call, Message, Save to contacts, Copy number, and Delete.

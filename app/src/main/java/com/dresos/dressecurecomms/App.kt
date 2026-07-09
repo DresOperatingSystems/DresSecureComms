@@ -10,12 +10,16 @@ import android.os.Process
 import android.util.Log
 import android.view.WindowManager
 import androidx.preference.PreferenceManager
+import com.klinker.android.send_message.Settings
+import com.klinker.android.send_message.Transaction
+import com.dresos.dressecurecomms.util.CrashLog
 import kotlin.system.exitProcess
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
         installCrashHandler()
+        forceSystemMms()
 
         registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
@@ -35,9 +39,19 @@ class App : Application() {
         })
     }
 
+    private fun forceSystemMms() {
+        Transaction.settings = Settings().apply { useSystemSending = true }
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .edit()
+            .putBoolean("system_mms_sending", true)
+            .apply()
+    }
+
     private fun installCrashHandler() {
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
+            val trace = Log.getStackTraceString(error)
+            CrashLog.append(this, trace)
             if (fromMmsLibrary(error)) {
                 Log.e("App", "swallowed MMS library failure", error)
                 if (thread != Looper.getMainLooper().thread) {
@@ -50,7 +64,7 @@ class App : Application() {
                 startActivity(
                     Intent(this, CrashActivity::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .putExtra("trace", Log.getStackTraceString(error))
+                        .putExtra("trace", trace)
                 )
             } catch (_: Throwable) {
                 previous?.uncaughtException(thread, error)

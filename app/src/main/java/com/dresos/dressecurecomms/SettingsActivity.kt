@@ -39,6 +39,10 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<Preference>("default_phone")?.setOnPreferenceClickListener { requestPhone(); true }
             findPreference<Preference>("default_screen")?.setOnPreferenceClickListener { requestScreen(); true }
 
+            findPreference<Preference>("share_crash_log")?.setOnPreferenceClickListener {
+                com.dresos.dressecurecomms.util.CrashLog.share(requireActivity()); true
+            }
+
             findPreference<Preference>("geo_random")?.setOnPreferenceClickListener {
                 val lat = Random.nextDouble(-90.0, 90.0)
                 val lng = Random.nextDouble(-180.0, 180.0)

@@ -1,1 +1,1 @@
-Fixes the crash when receiving a picture, and fixes sent pictures silently not arriving (they are now compressed to a carrier-safe size before sending). Pictures and group messages are sent unencrypted for now so they arrive readable on any phone; SMS text encryption is unchanged.
+Fixes the crash when receiving a picture, and fixes sent pictures silently not arriving (they are now compressed to a carrier-safe size before sending). Pictures and group messages are sent unencrypted so they arrive readable on any phone; SMS text encryption is unchanged.

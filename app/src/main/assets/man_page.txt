@@ -36,11 +36,20 @@ Coming soon:
   APKs, ZIPs, and effectively any content. That engine stays under wraps for now.
 - Several smaller refinements throughout.
 
-We are currently experiencing problems with MMS. Although we are applying patches around the MMS parts to make them more robust, we are a very small team. To make our jobs easier, if MMS does crash for you for instance, when you send or receive photos please get a bug report either via logcat or another service and send it to the DresOS team via email. This will help us pinpoint the exact cause of the crash and apply a fix right away, so we are not just shooting in the dark.
+We are currently experiencing problems with MMS. Picture messaging is the hardest part of
+any messaging app to get right, because pictures are downloaded and sent through your
+carrier's servers and every network configures those differently. We are applying patches
+around the MMS parts to make them more robust, but we are a very small team. To make our
+jobs easier, if MMS does crash for you, for instance when you send or receive photos,
+please send us a bug report. The easiest way: if the app crashes, tap "Share report" on
+the crash screen, or open Settings and tap "Share crash log", and it will attach the full
+error for you to send to security@dresos.org. A logcat works too. A full report lets us
+pinpoint the exact cause and apply a fix right away, so we are not just shooting in the
+dark.
 
 DresSecureComms is a core part of DresOS, the Android defensive security system. It brings
 private messaging, calling, contacts, threat scanning, and location protection together in
 one place so much of the system's day-to-day protection runs through this single app. You
 can read more about the wider project from the About screen.
 
-Copyright © 2026 DresOS. Licensed under the Apache License, Version 2.0.
+Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0.

@@ -72,6 +72,9 @@
     <string name="set_lock_sub">Require biometric or device PIN to open the app</string>
     <string name="set_shot_title">Block screenshots</string>
     <string name="set_shot_sub">Stop screenshots, screen recording, and recents previews inside the app. Takes effect on each screen you open next.</string>
+    <string name="set_cat_diag">Diagnostics</string>
+    <string name="set_sharelog_title">Share crash log</string>
+    <string name="set_sharelog_sub">Send the latest error to the DresOS team to help fix MMS and other issues</string>
 
     <string name="answer">Answer</string>
     <string name="decline">Decline</string>

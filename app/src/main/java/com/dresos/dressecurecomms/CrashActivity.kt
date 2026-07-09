@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.dresos.dressecurecomms.util.CrashLog
 
 class CrashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,10 @@ class CrashActivity : AppCompatActivity() {
                 finish()
             }
         }
+        val share = Button(this).apply {
+            text = "Share report"
+            setOnClickListener { CrashLog.share(this@CrashActivity) }
+        }
         val detail = TextView(this).apply {
             text = trace
             setTextIsSelectable(true)
@@ -41,7 +46,7 @@ class CrashActivity : AppCompatActivity() {
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(pad, pad, pad, pad)
-            addView(title); addView(restart); addView(detail)
+            addView(title); addView(restart); addView(share); addView(detail)
         }
         setContentView(ScrollView(this).apply { addView(content) })
     }
