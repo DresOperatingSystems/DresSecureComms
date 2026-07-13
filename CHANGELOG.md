@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.0
+
+### Added
+- Search in your messages, contacts, and call history. Start typing to filter the list by name or number. 
+- Timestamps throughout: the conversation list shows when each thread was last active, each message in a thread shows its time, and the call log shows how long each answered call lasted.
+- The dialer now shows matching numbers from your history as you type, so you can tap a result instead of typing the whole number.
+- Dialer conveniences: paste a copied number straight into the dialer, a backspace key to delete the last digit, and long press backspace to clear the whole number.
+- On the in-call screen, the keypad now shows the digits you press, with paste and backspace, so you can see and edit what you send to phone menus and PINs.
+(thank you to all those who put in feature requests)
+
 ## 1.6.3
 
 ### Fixed

@@ -59,6 +59,42 @@
         android:orientation="vertical"
         android:visibility="gone">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp">
+
+            <TextView
+                android:id="@+id/dtmfDigits"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="start"
+                android:textSize="22sp"
+                android:textColor="?attr/colorOnSurface" />
+
+            <ImageButton
+                android:id="@+id/dtmfPaste"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_paste"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/colorOnSurfaceVariant"
+                android:contentDescription="@string/paste" />
+
+            <ImageButton
+                android:id="@+id/dtmfBackspace"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_backspace"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/colorOnSurfaceVariant"
+                android:contentDescription="@string/backspace" />
+        </LinearLayout>
+
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
             <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="1" />
             <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="68dp" android:textSize="24sp" android:text="2" />

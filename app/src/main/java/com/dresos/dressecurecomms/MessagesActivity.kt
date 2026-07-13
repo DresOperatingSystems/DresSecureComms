@@ -18,6 +18,8 @@ import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.data.ContactsStore
 import com.dresos.dressecurecomms.util.Actions
+import com.dresos.dressecurecomms.util.TimeFmt
+import androidx.core.widget.doAfterTextChanged
 import com.dresos.dressecurecomms.data.SmsRepository
 import com.dresos.dressecurecomms.databinding.ActivityMessagesBinding
 import com.dresos.dressecurecomms.ui.TwoLineAdapter
@@ -42,7 +44,7 @@ class MessagesActivity : AppCompatActivity() {
         b.toolbar.setNavigationIcon(R.drawable.ic_back)
         b.toolbar.setNavigationOnClickListener { finish() }
 
-        adapter = TwoLineAdapter(this, emptyList()) { c -> nameFor(c.address) to c.snippet }
+        adapter = TwoLineAdapter(this, emptyList()) { c -> Triple(nameFor(c.address), c.snippet, TimeFmt.rel(c.time)) }
         b.list.adapter = adapter
         b.list.emptyView = b.empty
         b.list.setOnItemClickListener { _, _, pos, _ ->
@@ -53,6 +55,7 @@ class MessagesActivity : AppCompatActivity() {
             conversationActions(adapter.getItem(pos)); true
         }
         b.fab.setOnClickListener { newMessage() }
+        b.search.doAfterTextChanged { applyFilter() }
 
         requestSmsRead.launch(Manifest.permission.READ_SMS)
     }
@@ -60,6 +63,7 @@ class MessagesActivity : AppCompatActivity() {
     override fun onResume() { super.onResume(); reload(); promptDefaultIfNeeded() }
 
     private var nameByNumber: Map<String, String> = emptyMap()
+    private var all: List<SmsRepository.Conversation> = emptyList()
 
     private fun reload() {
         val key = SecureKeys.smsKey(this)
@@ -70,8 +74,21 @@ class MessagesActivity : AppCompatActivity() {
                 convs to map
             }
             nameByNumber = names
-            adapter.setItems(items)
+            all = items
+            applyFilter()
         }
+    }
+
+    private fun applyFilter() {
+        val q = b.search.text?.toString()?.trim()?.lowercase().orEmpty()
+        adapter.setItems(
+            if (q.isEmpty()) all
+            else all.filter {
+                nameFor(it.address).lowercase().contains(q) ||
+                    it.snippet.lowercase().contains(q) ||
+                    it.address.lowercase().contains(q)
+            }
+        )
     }
 
     private fun nameFor(address: String): String = nameByNumber[address] ?: address

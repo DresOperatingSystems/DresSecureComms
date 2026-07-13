@@ -27,5 +27,14 @@
             android:maxWidth="280dp"
             android:padding="4dp"
             android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:textSize="10sp"
+            android:textColor="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 </FrameLayout>

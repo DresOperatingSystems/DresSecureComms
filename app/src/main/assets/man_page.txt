@@ -33,7 +33,7 @@ Coming soon:
   phone rings.
 - Stronger encryption across more of the app, not just messages and the contact vault.
 - The next Threat Scan engine, now close to complete, extends scanning to media, files,
-  APKs, ZIPs, and effectively any content. That engine stays under wraps for now.
+  APKs, ZIPs, and effectively any content. Built up from Hypatias own engine.
 - Several smaller refinements throughout.
 
 We are currently experiencing problems with MMS. Picture messaging is the hardest part of
@@ -46,6 +46,8 @@ the crash screen, or open Settings and tap "Share crash log", and it will attach
 error for you to send to security@dresos.org. A logcat works too. A full report lets us
 pinpoint the exact cause and apply a fix right away, so we are not just shooting in the
 dark.
+
+Also you may experience some issues with SMS and Calling due to the encryption and security unless you make it your default app.
 
 DresSecureComms is a core part of DresOS, the Android defensive security system. It brings
 private messaging, calling, contacts, threat scanning, and location protection together in

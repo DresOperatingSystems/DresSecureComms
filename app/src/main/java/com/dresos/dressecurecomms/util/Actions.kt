@@ -19,6 +19,13 @@ object Actions {
             .setPrimaryClip(ClipData.newPlainText(label, text))
     }
 
+    fun clipboardText(context: Context): String? {
+        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = cm.primaryClip ?: return null
+        if (clip.itemCount == 0) return null
+        return clip.getItemAt(0).coerceToText(context)?.toString()?.trim()?.takeIf { it.isNotEmpty() }
+    }
+
     fun saveToContacts(context: Context, number: String) {
         val nameInput = EditText(context).apply { hint = "Name" }
         val numberInput = EditText(context).apply {

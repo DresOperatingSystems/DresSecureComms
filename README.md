@@ -68,6 +68,8 @@ SMS app is what lets it receive, show, and delete your text messages.
 For the geo spoofer, turn on Developer options, open Select mock location app, and pick
 DresSecureComms.
 
+Also you may experience some issues with SMS and Calling due to the encryption and security unless you make it your default app
+
 ## Permissions and why
 
 - **RECEIVE_SMS, READ_SMS, SEND_SMS, RECEIVE_MMS, RECEIVE_WAP_PUSH** — to act as the
@@ -94,9 +96,7 @@ Apache-2.0. Copyright © 2026 The DresOS Foundation.
 
 ## Privacy & Permissions
 DresSecureComms requires SMS, Phone, and Location permissions to act as your secure, offline default Dialer and SMS app. We do not collect data. 
-Read our full [Privacy Policy](privacy_policy.md).
-
-[All Virus Checks Passed](https://www.virustotal.com/gui/file/0f39a18ff07bee0dbcb37ce90f5293fc65605ceeaffec7732686a1947ab5efa8/detection/f-0f39a18ff07bee0dbcb37ce90f5293fc65605ceeaffec7732686a1947ab5efa8-1782908592)
+Read our full [Privacy Policy](privacy_policy.md). [All Virus Checks Passed](https://www.virustotal.com/gui/file/5a7125c5dfb430994fc4c333dc84234db25ae552bfd808246530fdd0f8ad3637?nocache=1)
 
 ## Thanks
 

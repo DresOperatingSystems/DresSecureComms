@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.telecom.TelecomManager
-import android.text.format.DateUtils
+import androidx.core.widget.doAfterTextChanged
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.dresos.dressecurecomms.data.CallHistory
 import com.dresos.dressecurecomms.databinding.ActivityCallsBinding
 import com.dresos.dressecurecomms.ui.TwoLineAdapter
+import com.dresos.dressecurecomms.util.TimeFmt
 import com.dresos.dressecurecomms.util.Actions
 import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
@@ -60,10 +61,11 @@ class CallsActivity : AppCompatActivity() {
         b.toolbar.menu.add(0, 1, 0, "Clear call history").setOnMenuItemClickListener { confirmClear(); true }
 
         adapter = TwoLineAdapter(this, emptyList()) { e ->
-            nameFor(e.number) to "${CallHistory.typeLabel(e.type)} · ${DateUtils.getRelativeTimeSpanString(e.date)}"
+            Triple(nameFor(e.number), "${CallHistory.typeLabel(e.type)}${durationLabel(e.duration)}", TimeFmt.rel(e.date))
         }
         b.list.adapter = adapter
         b.list.setOnItemClickListener { _, _, pos, _ -> entryActions(adapter.getItem(pos)) }
+        b.number.doAfterTextChanged { applyFilter() }
 
         intent.getStringExtra("number")?.let { b.number.setText(it) }
         (if (intent?.data?.scheme == "tel") intent.data?.schemeSpecificPart else null)?.let { b.number.setText(it) }
@@ -71,6 +73,21 @@ class CallsActivity : AppCompatActivity() {
         b.callBtn.setOnClickListener {
             if (b.number.text.toString().isBlank()) return@setOnClickListener
             if (hasCall()) place() else requestCall.launch(Manifest.permission.CALL_PHONE)
+        }
+
+        b.pasteBtn.setOnClickListener {
+            val text = Actions.clipboardText(this)
+            if (text.isNullOrEmpty()) { snack(getString(R.string.clipboard_empty)); return@setOnClickListener }
+            val field = b.number.text
+            if (field == null) { b.number.setText(text) } else { field.insert(field.length, text) }
+            b.number.setSelection(b.number.text?.length ?: 0)
+        }
+        b.backspaceBtn.setOnClickListener {
+            val field = b.number.text ?: return@setOnClickListener
+            if (field.isNotEmpty()) field.delete(field.length - 1, field.length)
+        }
+        b.backspaceBtn.setOnLongClickListener {
+            b.number.text?.clear(); true
         }
     }
 
@@ -89,8 +106,26 @@ class CallsActivity : AppCompatActivity() {
                 e to Contacts.nameMap(this@CallsActivity, e.map { it.number })
             }
             nameByNumber = names
-            adapter.setItems(entries)
+            all = entries
+            applyFilter()
         }
+    }
+
+    private var all: List<CallHistory.Entry> = emptyList()
+
+    private fun applyFilter() {
+        val q = b.number.text?.toString()?.trim()?.lowercase().orEmpty()
+        adapter.setItems(
+            if (q.isEmpty()) all
+            else all.filter { nameFor(it.number).lowercase().contains(q) || it.number.lowercase().contains(q) }
+        )
+    }
+
+    private fun durationLabel(seconds: Long): String {
+        if (seconds <= 0L) return ""
+        val m = seconds / 60
+        val s = seconds % 60
+        return if (m > 0) " · ${m}m ${s}s" else " · ${s}s"
     }
 
     private fun nameFor(number: String): String = nameByNumber[number] ?: number

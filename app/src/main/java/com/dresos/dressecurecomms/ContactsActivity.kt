@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dresos.dressecurecomms.data.ContactsStore
 import com.dresos.dressecurecomms.databinding.ActivityContactsBinding
 import com.dresos.dressecurecomms.ui.TwoLineAdapter
+import androidx.core.widget.doAfterTextChanged
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -37,16 +38,31 @@ class ContactsActivity : AppCompatActivity() {
         b.toolbar.setNavigationOnClickListener { finish() }
 
         adapter = TwoLineAdapter(this, emptyList()) { c ->
-            c.name to if (c.email.isNotEmpty()) "${c.number}  ·  ${c.email}" else c.number
+            Triple(c.name, if (c.email.isNotEmpty()) "${c.number}  ·  ${c.email}" else c.number, "")
         }
         b.list.adapter = adapter
         b.list.emptyView = b.empty
         b.list.setOnItemClickListener { _, _, pos, _ -> contactActions(adapter.getItem(pos)) }
         b.fab.setOnClickListener { addMenu() }
+        b.search.doAfterTextChanged { applyFilter() }
     }
 
     override fun onResume() { super.onResume(); refresh() }
-    private fun refresh() = adapter.setItems(ContactsStore.load(this))
+
+    private var all: List<ContactsStore.Contact> = emptyList()
+
+    private fun refresh() {
+        all = ContactsStore.load(this)
+        applyFilter()
+    }
+
+    private fun applyFilter() {
+        val q = b.search.text?.toString()?.trim()?.lowercase().orEmpty()
+        adapter.setItems(
+            if (q.isEmpty()) all
+            else all.filter { it.name.lowercase().contains(q) || it.number.lowercase().contains(q) }
+        )
+    }
 
     private fun addMenu() {
         MaterialAlertDialogBuilder(this)

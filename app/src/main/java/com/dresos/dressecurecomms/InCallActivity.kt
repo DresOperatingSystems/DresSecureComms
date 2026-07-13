@@ -93,12 +93,38 @@ class InCallActivity : AppCompatActivity() {
                         val ch = child.text?.firstOrNull() ?: return@setOnClickListener
                         CallManager.playDtmf(ch)
                         child.postDelayed({ CallManager.stopDtmf() }, 150)
+                        appendDigit(ch)
                     }
                     is android.view.ViewGroup -> attach(child)
                 }
             }
         }
         attach(b.dtmfPanel)
+
+        b.dtmfPaste.setOnClickListener {
+            val digits = Actions.clipboardText(this)?.filter { it.isDigit() || it == '*' || it == '#' }.orEmpty()
+            if (digits.isEmpty()) { toast(getString(R.string.clipboard_empty)); return@setOnClickListener }
+            var delay = 0L
+            for (ch in digits) {
+                b.dtmfDigits.postDelayed({
+                    CallManager.playDtmf(ch)
+                    b.dtmfDigits.postDelayed({ CallManager.stopDtmf() }, 150)
+                    appendDigit(ch)
+                }, delay)
+                delay += 250
+            }
+        }
+        b.dtmfBackspace.setOnClickListener {
+            val cur = b.dtmfDigits.text?.toString().orEmpty()
+            if (cur.isNotEmpty()) b.dtmfDigits.text = cur.dropLast(1)
+        }
+        b.dtmfBackspace.setOnLongClickListener {
+            b.dtmfDigits.text = ""; true
+        }
+    }
+
+    private fun appendDigit(ch: Char) {
+        b.dtmfDigits.text = "${b.dtmfDigits.text}$ch"
     }
 
     private fun showWhenLocked() {

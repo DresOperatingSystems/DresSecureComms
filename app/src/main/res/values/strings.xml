@@ -75,6 +75,10 @@
     <string name="set_cat_diag">Diagnostics</string>
     <string name="set_sharelog_title">Share crash log</string>
     <string name="set_sharelog_sub">Send the latest error to the DresOS team to help fix MMS and other issues</string>
+    <string name="search_hint">Search</string>
+    <string name="paste">Paste</string>
+    <string name="backspace">Backspace</string>
+    <string name="clipboard_empty">Clipboard is empty</string>
 
     <string name="answer">Answer</string>
     <string name="decline">Decline</string>

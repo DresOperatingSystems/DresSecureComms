@@ -42,6 +42,24 @@
             android:textColor="?attr/colorOnSurface"
             android:textColorHint="?attr/colorOnSurfaceVariant" />
 
+        <ImageButton
+            android:id="@+id/pasteBtn"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_paste"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="?attr/colorOnSurfaceVariant"
+            android:contentDescription="@string/paste" />
+
+        <ImageButton
+            android:id="@+id/backspaceBtn"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_backspace"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="?attr/colorOnSurfaceVariant"
+            android:contentDescription="@string/backspace" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/callBtn"
             android:layout_width="wrap_content"
