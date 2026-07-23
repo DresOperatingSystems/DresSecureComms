@@ -1,7 +1,6 @@
 /* Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms
 
-import com.dresos.dressecurecomms.util.SecureKeys
 import com.dresos.dressecurecomms.util.Actions
 
 import android.Manifest
@@ -20,7 +19,9 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.dresos.dressecurecomms.crypto.ContactKeys
 import com.dresos.dressecurecomms.crypto.SmsCrypto
+import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.data.ContactsStore
 import com.dresos.dressecurecomms.data.SmsRepository
 import com.dresos.dressecurecomms.data.SmsStore
@@ -88,8 +89,15 @@ class ThreadActivity : AppCompatActivity() {
             b.toolbar.menu.add(0, 2, 0, "Call").setOnMenuItemClickListener {
                 Actions.dial(this, address); true
             }
-            b.toolbar.menu.add(0, 3, 0, "Save to contacts").setOnMenuItemClickListener {
-                Actions.saveToContacts(this, address); true
+            if (!Contacts.isSaved(this, address)) {
+                b.toolbar.menu.add(0, 3, 0, "Save to contacts").setOnMenuItemClickListener {
+                    Actions.saveToContacts(this, address)
+                    b.toolbar.menu.removeItem(3)
+                    true
+                }
+            }
+            b.toolbar.menu.add(0, 5, 0, "Encryption key for this contact").setOnMenuItemClickListener {
+                contactKeyDialog(); true
             }
             b.toolbar.menu.add(0, 4, 0, "Copy number").setOnMenuItemClickListener {
                 Actions.copy(this, "number", address); toast(getString(R.string.number_copied)); true
@@ -103,7 +111,7 @@ class ThreadActivity : AppCompatActivity() {
             if (body.isNotBlank()) { Actions.copy(this, "message", body); toast(getString(R.string.message_copied)) }
             true
         }
-        b.encrypt.isChecked = SecureKeys.smsKey(this).isNotBlank()
+        b.encrypt.isChecked = ContactKeys.keyFor(this, address).isNotBlank()
 
         b.attachBtn.setOnClickListener { pickImage.launch("image/*") }
         b.attachPreview.setOnClickListener { pendingImage = null; updateAttachUi() }
@@ -125,6 +133,39 @@ class ThreadActivity : AppCompatActivity() {
 
     override fun onResume() { super.onResume(); reload() }
 
+    private fun contactKeyDialog() {
+        val current = ContactKeys.forAddress(this, address).orEmpty()
+        val input = android.widget.EditText(this).apply {
+            setText(current)
+            hint = "Leave blank to use the shared key from Settings"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        }
+        val pad = (16 * resources.displayMetrics.density).toInt()
+        val wrap = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(pad, pad, pad, 0)
+            addView(input)
+        }
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Encryption key for $address")
+            .setMessage("Both of you must type the same code. It is used only for this contact.")
+            .setView(wrap)
+            .setPositiveButton("Save") { _, _ ->
+                ContactKeys.set(this, address, input.text.toString().trim())
+                b.encrypt.isChecked = ContactKeys.keyFor(this, address).isNotBlank()
+                toast(
+                    if (ContactKeys.has(this, address)) "Key saved for this contact."
+                    else "Using the shared key from Settings."
+                )
+                reload()
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+        dialog.applyScreenshotPolicy(this)
+        dialog.show()
+    }
+
     private fun splitRecipients(s: String): List<String> =
         s.split(Regex("[,;]")).map { it.trim() }.filter { it.isNotEmpty() }
 
@@ -140,7 +181,7 @@ class ThreadActivity : AppCompatActivity() {
     }
 
     private fun reload() {
-        val key = SecureKeys.smsKey(this)
+        val key = ContactKeys.keyFor(this, address)
         lifecycleScope.launch {
             val items = withContext(Dispatchers.IO) {
                 if (threadId <= 0) threadId = SmsRepository.threadIdForAddress(this@ThreadActivity, address)
@@ -153,9 +194,12 @@ class ThreadActivity : AppCompatActivity() {
 
     private fun reallySend(text: String) {
         try {
-            val key = SecureKeys.smsKey(this)
+            val key = ContactKeys.keyFor(this, address)
             val encryptOn = b.encrypt.isChecked
-            if (encryptOn && key.isBlank()) { toast("Set a shared SMS key in Settings first."); return }
+            if (encryptOn && key.isBlank()) {
+                toast("Set a key for this contact from the menu, or a shared key in Settings.")
+                return
+            }
 
             val recipients = splitRecipients(address)
             if (recipients.isEmpty()) { toast("No recipient."); return }

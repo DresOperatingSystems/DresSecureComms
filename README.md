@@ -13,25 +13,38 @@ replacing several separate tools with a single hardened app so that messaging, c
 
 ## Download
 
->[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.6.0)
+>[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.0)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="50">](https://apt.izzysoft.de/packages/com.dresos.dressecurecomms)
-[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.6.0)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.0)
 
 ## What it does
 
 - **Messages.** A private SMS client. Send and receive normal texts, or switch on
   encryption for a message. Encrypted messages are readable only by another person who
-  runs this app and shares the same key. Set it as your default SMS app so texts arrive
-  inside it, and delete whole conversations when you want them gone.
+  runs this app and shares the same key, and keys are set per contact so every person can
+  have their own code. Starting a new message suggests your contacts as you type. Set it as
+  your default SMS app so texts arrive inside it, and delete whole conversations when you
+  want them gone.
 - **Calls.** Dial a number or call a saved contact over your carrier line. As your default
   phone app it shows its own in-call screen with mute, speaker, keypad, hold, add call, and
-  hang up, and it keeps a call history you can clear per call or all at once.
-- **Caller ID and spam.** Can be selected as your caller ID and spam app.
+  hang up, and the screen turns off when you hold the phone to your ear. It keeps a
+  searchable call history you can clear per call or all at once, and you can block or
+  unblock any number straight from the log.
+- **Spam Shield.** Set as your caller ID and spam app, it screens incoming calls before
+  the phone rings. Premium rate numbers are rejected, short codes are silenced, and callers
+  faking the first digits of your own number are flagged. You can also silence anyone not
+  in your contacts, or reject withheld numbers. Saved contacts always ring through, and
+  everything it blocks is listed in Settings so you can undo it. It runs entirely on the
+  device, so no number is ever sent anywhere to be checked.
 - **Contacts.** An encrypted on-device contacts vault. Add and edit contacts with a name,
   number, and email, or import from the device. Nothing leaves the phone.
 - **Threat Scan.** Check a link against VirusTotal and get a clear safe, suspicious, or
-  dangerous verdict before you open it. Scanning of media, files, APKs, ZIPs, and more is
-  on the way; that engine is under wraps for now.
+  dangerous verdict before you open it.
+- **File Scan.** Check a single file, or every app on your device, against VirusTotal. The
+  file never leaves the phone. Only its SHA-256 fingerprint is sent, and that comes back
+  checked against seventy or more antivirus engines at once. A free API key allows four
+  lookups a minute, so a full sweep of your apps paces itself and can be stopped at any
+  point. Offline signature scanning is what the next version adds.
 - **Metadata Wipe.** Strip GPS and other hidden EXIF data from a photo before you share it.
 - **Geo Spoofer.** Set a mock GPS location, or have the app pick a random one, to keep your
   real location private from apps that read it.
@@ -41,16 +54,20 @@ replacing several separate tools with a single hardened app so that messaging, c
 
 ## How the encryption works
 
-Message encryption is symmetric AES-256-GCM. The key is a passphrase you set in Settings
-and share, by hand, with the person you are talking to. There is no account and no key
-server. Encrypted messages carry a short marker so the app knows to decode them; to anyone
-else, including your carrier, they are unreadable text. Calls over the carrier line are
-ordinary phone calls and are not end-to-end encrypted, and the app says so plainly.
+Message encryption is symmetric AES-256-GCM. The key is a passphrase you agree, by hand,
+with the person you are talking to, in person or over another channel. Never send a key by
+plain text. Keys are set per contact from the conversation menu, so each person can have
+their own code; the shared key in Settings still covers anyone you have not set one for,
+and messages encrypted with it still open. There is no account and no key server. Encrypted
+messages carry a short marker so the app knows to decode them; to anyone else, including
+your carrier, they are unreadable text. Calls over the carrier line are ordinary phone
+calls and are not end-to-end encrypted, and the app says so plainly.
 
 Contacts and the sent-message log are encrypted at rest using a key held in the Android
 Keystore, so they stay protected on the device.
 
-Major encryption updates are on the way
+Per-contact keys landed in 1.8.0. The next step is widening encryption beyond messages and
+the contact vault to more of the app.
 
 ## Setting it as your default apps
 
@@ -82,7 +99,8 @@ Also you may experience some issues with SMS and Calling due to the encryption a
   no-op permission that only makes the app selectable in Developer options.
 - **USE_BIOMETRIC** — for the app lock.
 - **POST_NOTIFICATIONS** — to show message and call notifications.
-- **INTERNET** — used only by Threat Scan to reach VirusTotal. Nothing else goes online.
+- **INTERNET** — used only by Threat Scan and File Scan to reach VirusTotal. Nothing else
+  goes online, and File Scan sends a fingerprint, never a file.
 
 ## Privacy
 
@@ -105,6 +123,8 @@ A huge thank you to [Fossify](https://github.com/FossifyOrg). We used Fossify Me
 A huge thank you must also go to [Fake Traveler](https://github.com/mcastillof/FakeTraveler). Our mock location components are built on references from their application.
 
 A huge thank you must also go to [URL Check](https://github.com/TrianguloY/URLCheck), As we used their scan part that connects to VirusTotal and built our URL scan engine up from that.
+
+A huge thank you must also go to [Hypatia](https://github.com/Divested-Mobile/Hypatia). Hypatia is the on-device scanner our File Scan is set to replace inside DresOS, and it set the bar for what a scanner on a de-Googled phone should do. Version one of our engine checks fingerprints against VirusTotal; the offline signature scanning Hypatia does so well is what version two brings.
 
 ## Donate
 

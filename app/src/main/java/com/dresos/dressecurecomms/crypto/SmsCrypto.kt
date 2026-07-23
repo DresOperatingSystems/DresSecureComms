@@ -52,6 +52,17 @@ object SmsCrypto {
         return String(cipher.doFinal(ct), Charsets.UTF_8)
     }
 
+    fun tryDecrypt(body: String, keys: List<String>): String? {
+        for (k in keys) {
+            if (k.isBlank()) continue
+            try {
+                return decrypt(body, k)
+            } catch (e: Exception) {
+            }
+        }
+        return null
+    }
+
     private val MEDIA_MAGIC = byteArrayOf(0x44, 0x53, 0x43, 0x4D)
 
     fun isEncryptedMedia(data: ByteArray): Boolean =

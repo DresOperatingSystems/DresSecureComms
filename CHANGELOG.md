@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.8.0
+
+### Added
+- File Scan engine, version one. This replaces the Hypatia anti malware scan within The DresOS Android Defensive Security System, and version two adds the offline signature scanning Hypatia is known for. It is going to set the bar for what an on device scanner has to do. This first version checks a single file, or every app on your device, by fingerprint: the file never leaves the phone, only its SHA-256 goes out, and it comes back checked against seventy or more antivirus engines at once. A free VirusTotal key allows four lookups a minute, so a full sweep of your apps paces itself and can be stopped at any point. Offline signature scanning, which is Hypatia's own approach, is what version two adds.
+- Spam Shield. Incoming calls are screened before your phone rings. Premium rate numbers are rejected, short codes are silenced, and callers faking the first digits of your own number are flagged. You can also silence anyone not in your contacts or reject withheld numbers. Saved contacts always ring through. Everything it blocks is listed in Settings so you can undo any of it, and the whole thing runs on the device, so no number is ever sent anywhere to be checked.
+- Encryption keys are now per contact. Set a code for one person from the conversation menu and it is used only for them, instead of one code shared with everybody. The old shared key still covers anyone you have not set a code for, and messages encrypted with it still open.
+- Block or unblock any number straight from the call log.
+- Starting a new message now suggests your contacts as you type, from both the encrypted vault and the device, so you no longer have to go and look a number up first.
+
+### Fixed
+- The screen now turns off when you hold the phone to your ear during a call, and comes back when you take it away.
+- The option to save a number to your contacts is now hidden once that number is already saved, in conversations, the call log, and the in-call screen.
+
 ## 1.7.0
 
 ### Added

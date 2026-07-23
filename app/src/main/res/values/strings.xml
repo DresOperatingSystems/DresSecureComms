@@ -47,7 +47,7 @@
     <string name="name_hint">Name</string>
     <string name="number_hint">Number</string>
 
-    <string name="about_blurb">DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app. It works fully offline for SMS and calls, with no trackers and no Google services. Messages can be end-to-end encrypted between two people who both use this app.</string>
+    <string name="about_blurb">DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app. It works fully offline for SMS and calls, with no trackers and no Google services. Messages can be encrypted between two people who both use this app, with a separate key for each contact. It also screens spam calls on the device and checks files against VirusTotal by fingerprint, so nothing you scan is ever uploaded.</string>
     <string name="about_website">Website</string>
     <string name="about_donate">Donate on Ko-fi</string>
     <string name="about_email">Email</string>
@@ -104,4 +104,17 @@
     <string name="set_default_phone_sub">Needed to place and receive calls inside the app</string>
     <string name="set_default_screen_title">Set as caller ID and spam app</string>
     <string name="set_default_screen_sub">Lets the app screen incoming calls</string>
+    <string name="set_cat_spam">Call screening</string>
+    <string name="set_spam_premium_title">Block premium and short codes</string>
+    <string name="set_spam_premium_sub">Reject premium rate prefixes and silence short codes you have not saved</string>
+    <string name="set_spam_spoofed_title">Flag spoofed local numbers</string>
+    <string name="set_spam_spoofed_sub">Silence calls that copy the first digits of your own number</string>
+    <string name="set_spam_unknown_title">Silence unknown callers</string>
+    <string name="set_spam_unknown_sub">Anyone not in your contacts rings silently</string>
+    <string name="set_spam_withheld_title">Block withheld numbers</string>
+    <string name="set_spam_withheld_sub">Reject calls that hide their number</string>
+    <string name="set_own_number_title">Your own number</string>
+    <string name="set_own_number_sub">Used only to spot callers faking your local prefix. Stored on the device.</string>
+    <string name="set_spam_manage_title">Blocked numbers</string>
+    <string name="set_spam_manage_sub">Review and clear the numbers you have blocked</string>
 </resources>

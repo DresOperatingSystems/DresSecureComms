@@ -1,13 +1,29 @@
+DresSecureComms 1.8.0
+
 DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app.
 
 Features:
 - Messages: a private, offline SMS client. Send and receive normal texts, or flip on
   encryption per message. Encrypted messages are AES-256-GCM and only work between two
-  people who both use this app and share the same key (set by hand in Settings), also comes with photo sharing and group creation.
-- Calls: dial any number or call a saved contact. Calls use your normal carrier line.
+  people who both use this app and share the same key. Keys are set per contact from the
+  conversation menu, so every person can have their own code, and the shared key in
+  Settings still covers anyone you have not set one for. Also comes with photo sharing,
+  group creation, search, and contact suggestions when you start a new message.
+- Calls: dial any number or call a saved contact. Calls use your normal carrier line. The
+  call log is searchable, the screen turns off when you hold the phone to your ear, and you
+  can block or unblock any number straight from the log.
+- Spam Shield: screens incoming calls before your phone rings. Rejects premium rate
+  numbers, silences short codes, flags callers faking the first digits of your own number,
+  and will silence anyone not in your contacts or reject withheld numbers if you want it
+  stricter. Saved contacts always ring through. Everything it blocks is listed in Settings
+  so you can undo it.
 - Contacts: an encrypted local vault. Add contacts by hand or import them from the device.
   Everything is stored encrypted at rest using the Android Keystore.
 - Threat Scan: check a URL against VirusTotal using your own free API key.
+- File Scan: check a single file, or every app on your device, against VirusTotal. The file
+  never leaves your phone. Only its SHA-256 fingerprint is sent, and that is checked against
+  seventy or more antivirus engines at once. A free API key allows four lookups a minute, so
+  a full sweep of your apps is paced accordingly and can be stopped at any point.
 - Metadata Wipe: strip GPS and EXIF metadata from a photo before you share it.
 - Geo Spoofer: set a mock GPS location, or have the app pick a random one. Enable this app
   as the mock location app under Developer options first.
@@ -22,36 +38,32 @@ under "Restricted settings". If SMS does not work, do this once:
   3. Tap "Allow restricted settings".
   4. Reopen DresSecureComms and grant the SMS permission when asked.
 
+Setting up Spam Shield:
+Open Settings inside the app, then Default apps, and set DresSecureComms as your caller ID
+and spam app. The screening rules are under Call screening in the same Settings screen.
+
 How it works:
 - SMS and calls work fully offline on your carrier line. No Google services, no trackers.
-- Internet is only used by Threat Scan.
-- For encrypted SMS, share the key with your contact by hand. Only this app can read it.
-- Encryption covers SMS text only. Pictures and group messages (MMS) are always sent unencrypted, the same as any normal messaging app, so they arrive readable on any phone.
+- Internet is only used by Threat Scan and File Scan, and both talk to VirusTotal and
+  nothing else.
+- For encrypted SMS, agree the key with your contact by hand, in person or over another
+  channel. Never send a key by plain text. Only this app can read the result.
+- Encryption covers SMS text only. Pictures and group messages (MMS) are always sent
+  unencrypted, the same as any normal messaging app, so they arrive readable on any phone.
+- Spam screening runs entirely on the device. No number is ever sent anywhere to be checked.
 
 Coming soon:
-- A spam call shield that recognises and blocks known spam and scam callers before your
-  phone rings.
+- Offline file scanning, so the scanner can flag known malware without an internet
+  connection or an API key.
 - Stronger encryption across more of the app, not just messages and the contact vault.
-- The next Threat Scan engine, now close to complete, extends scanning to media, files,
-  APKs, ZIPs, and effectively any content. Built up from Hypatias own engine.
 - Several smaller refinements throughout.
 
-We are currently experiencing problems with MMS. Picture messaging is the hardest part of
-any messaging app to get right, because pictures are downloaded and sent through your
-carrier's servers and every network configures those differently. We are applying patches
-around the MMS parts to make them more robust, but we are a very small team. To make our
-jobs easier, if MMS does crash for you, for instance when you send or receive photos,
-please send us a bug report. The easiest way: if the app crashes, tap "Share report" on
-the crash screen, or open Settings and tap "Share crash log", and it will attach the full
-error for you to send to security@dresos.org. A logcat works too. A full report lets us
-pinpoint the exact cause and apply a fix right away, so we are not just shooting in the
-dark.
-
-Also you may experience some issues with SMS and Calling due to the encryption and security unless you make it your default app.
+You may experience some issues with SMS and Calling due to the encryption and security
+unless you make it your default app.
 
 DresSecureComms is a core part of DresOS, the Android defensive security system. It brings
-private messaging, calling, contacts, threat scanning, and location protection together in
-one place so much of the system's day-to-day protection runs through this single app. You
-can read more about the wider project from the About screen.
+private messaging, calling, contacts, threat scanning, spam screening, and location
+protection together in one place so much of the system's day-to-day protection runs through
+this single app. You can read more about the wider project from the About screen.
 
 Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0.

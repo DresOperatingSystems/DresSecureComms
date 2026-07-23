@@ -14,8 +14,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import com.dresos.dressecurecomms.data.SpamStore
 import com.dresos.dressecurecomms.location.MockLocation
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlin.random.Random
 
 class SettingsActivity : AppCompatActivity() {
@@ -39,6 +41,10 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<Preference>("default_phone")?.setOnPreferenceClickListener { requestPhone(); true }
             findPreference<Preference>("default_screen")?.setOnPreferenceClickListener { requestScreen(); true }
 
+            findPreference<Preference>("spam_manage")?.setOnPreferenceClickListener {
+                blockedNumbers(); true
+            }
+
             findPreference<Preference>("share_crash_log")?.setOnPreferenceClickListener {
                 com.dresos.dressecurecomms.util.CrashLog.share(requireActivity()); true
             }
@@ -59,6 +65,36 @@ class SettingsActivity : AppCompatActivity() {
                 else toast(MockLocation.apply(requireContext(), lat, lng))
                 true
             }
+        }
+
+        private fun blockedNumbers() {
+            val ctx = requireContext()
+            val rules = SpamStore.load(ctx).filter { it.blocked }
+            if (rules.isEmpty()) {
+                toast("Nothing is blocked yet")
+                return
+            }
+            val labels = rules.map { "${it.number}  (${it.reason})" }.toTypedArray()
+            MaterialAlertDialogBuilder(ctx)
+                .setTitle(R.string.set_spam_manage_title)
+                .setItems(labels) { _, which ->
+                    val rule = rules[which]
+                    MaterialAlertDialogBuilder(ctx)
+                        .setTitle(rule.number)
+                        .setMessage("Blocked because: ${rule.reason}")
+                        .setPositiveButton("Unblock") { _, _ ->
+                            SpamStore.allow(ctx, rule.number)
+                            toast("Calls from ${rule.number} are allowed again")
+                        }
+                        .setNegativeButton("Keep blocked", null)
+                        .show()
+                }
+                .setNeutralButton("Clear all") { _, _ ->
+                    SpamStore.clear(ctx)
+                    toast("Block list cleared")
+                }
+                .setNegativeButton("Close", null)
+                .show()
         }
 
         private fun requestSms() {

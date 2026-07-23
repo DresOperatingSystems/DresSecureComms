@@ -53,6 +53,78 @@ object VirusTotalClient {
         }
     }
 
+    enum class State { CLEAN, MALICIOUS, SUSPICIOUS, UNKNOWN, BAD_KEY, RATE_LIMITED, ERROR }
+
+    data class Verdict(
+        val state: State,
+        val malicious: Int = 0,
+        val suspicious: Int = 0,
+        val total: Int = 0,
+        val detail: String = ""
+    )
+
+    fun fileVerdict(sha256: String, apiKey: String): Verdict {
+        if (apiKey.isBlank()) return Verdict(State.BAD_KEY, detail = "Add your VirusTotal API key in Settings first.")
+        return try {
+            val req = Request.Builder().url("$BASE/files/$sha256").header("x-apikey", apiKey).get().build()
+            client.newCall(req).execute().use { resp ->
+                when (resp.code) {
+                    401 -> return Verdict(State.BAD_KEY, detail = "Invalid API key. Check it in Settings.")
+                    429 -> return Verdict(State.RATE_LIMITED, detail = "Rate limited. Wait a minute and try again.")
+                    404 -> return Verdict(State.UNKNOWN, detail = "VirusTotal has never seen this file.")
+                }
+                if (!resp.isSuccessful) {
+                    return Verdict(State.ERROR, detail = "VirusTotal returned an error (${resp.code}).")
+                }
+                val stats = JSONObject(resp.body?.string().orEmpty())
+                    .optJSONObject("data")?.optJSONObject("attributes")?.optJSONObject("last_analysis_stats")
+                    ?: return Verdict(State.UNKNOWN, detail = "No analysis available yet.")
+                val mal = stats.optInt("malicious")
+                val sus = stats.optInt("suspicious")
+                val total = mal + sus + stats.optInt("harmless") + stats.optInt("undetected")
+                val state = when {
+                    mal > 0 -> State.MALICIOUS
+                    sus > 0 -> State.SUSPICIOUS
+                    else -> State.CLEAN
+                }
+                Verdict(state, mal, sus, total)
+            }
+        } catch (e: IOException) {
+            Verdict(State.ERROR, detail = "No connection to VirusTotal.")
+        } catch (e: Exception) {
+            Verdict(State.ERROR, detail = e.message ?: "unexpected error")
+        }
+    }
+
+    fun describe(name: String, sha256: String, v: Verdict): String = buildString {
+        append("File: ").append(name).append("\n")
+        append("SHA-256: ").append(sha256).append("\n\n")
+        when (v.state) {
+            State.MALICIOUS -> {
+                append("Verdict: DANGEROUS\n")
+                append(v.malicious + v.suspicious).append(" of ").append(v.total)
+                append(" engines flagged this file. Delete it and do not install it.")
+            }
+            State.SUSPICIOUS -> {
+                append("Verdict: SUSPICIOUS\n")
+                append(v.suspicious).append(" of ").append(v.total)
+                append(" engines flagged this file. Treat it with caution.")
+            }
+            State.CLEAN -> {
+                append("Verdict: CLEAN\n")
+                append("No engines flagged this file out of ").append(v.total).append(".")
+            }
+            State.UNKNOWN -> {
+                append("Verdict: UNKNOWN\n")
+                append("VirusTotal has no record of this file. That is normal for files you made yourself, ")
+                append("and worth a second look for anything you downloaded.")
+            }
+            else -> {
+                append("Verdict: NOT CHECKED\n").append(v.detail)
+            }
+        }
+    }
+
     private fun analyzing(url: String): String =
         "Site: $url\n\nVirusTotal is analyzing this link now. Tap Scan again in about a minute to see the result."
 

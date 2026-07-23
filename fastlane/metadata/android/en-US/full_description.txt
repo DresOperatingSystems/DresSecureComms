@@ -5,14 +5,30 @@ Features:
 
 * Messages: a private offline SMS client. Send and receive normal texts, or turn on
 encryption per message. Encrypted messages use AES-256-GCM and only work between two
-people who both use this app and share the same key (set by hand in Settings).
-* Calls: dial any number or call a saved contact over your normal carrier line.
+people who both use this app and share the same key. Keys are set per contact, so every
+person can have their own code. Includes photo sharing, group messages, search, and
+contact suggestions when you start a new message.
+* Calls: dial any number or call a saved contact over your normal carrier line. The call
+log is searchable, the screen turns off when you hold the phone to your ear, and you can
+block or unblock any number straight from the log.
+* Spam Shield: screens incoming calls before your phone rings. Rejects premium rate
+numbers, silences short codes, and flags callers faking the first digits of your own
+number. Saved contacts always ring through, and everything it blocks is listed in
+Settings so you can undo it. It runs entirely on the device, so no number is ever sent
+anywhere to be checked.
 * Contacts: an encrypted local vault, stored with the Android Keystore. Add contacts by
 hand or import them from the device.
 * Threat Scan: check a URL against VirusTotal using your own free API key.
+* File Scan: check a single file, or every app on your device, against VirusTotal. The
+file never leaves your phone. Only its SHA-256 fingerprint is sent, and that is checked
+against seventy or more antivirus engines at once.
 * Metadata Wipe: strip GPS and EXIF data from a photo before you share it.
 * Geo Spoofer: set a mock GPS location, or have the app pick a random one.
 * App Lock: biometric or device PIN.
+* Block Screenshots: stop screenshots and screen recording inside the app.
+
+Encryption covers SMS text only. Pictures and group messages are sent unencrypted for now, the
+same as any normal messaging app, so they arrive readable on any phone.
 
 End Notes:
 
@@ -22,6 +38,6 @@ Part of the DresOS Android privacy and defensive-security project.
 
 Website: https://dresos.org
 
-Source: https://github.com/The-DresOS-Foundation/DresSecureComms
+Source: https://github.com/DresOperatingSystems/DresSecureComms
 
 Donate: https://ko-fi.com/dresos

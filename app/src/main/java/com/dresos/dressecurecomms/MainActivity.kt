@@ -29,10 +29,12 @@ import com.dresos.dressecurecomms.databinding.ActivityMainBinding
 import com.dresos.dressecurecomms.databinding.CardItemBinding
 import com.dresos.dressecurecomms.media.MetadataWiper
 import com.dresos.dressecurecomms.net.VirusTotalClient
+import com.dresos.dressecurecomms.scan.FileScanner
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -48,6 +50,11 @@ class MainActivity : AppCompatActivity() {
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) onImagePicked(uri)
+        }
+
+    private val pickAnyFile =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) scanFile(uri)
         }
 
     private val saveImage =
@@ -187,10 +194,148 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fileScanDialog() {
+        if (SecureKeys.vtKey(this).isBlank()) {
+            Snackbar.make(binding.root, "Add your VirusTotal API key in Settings first.", Snackbar.LENGTH_LONG).show()
+            return
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.card_filescan_title)
+            .setItems(arrayOf("Scan a file", "Scan installed apps")) { _, which ->
+                when (which) {
+                    0 -> try {
+                        pickAnyFile.launch(arrayOf("*/*"))
+                    } catch (e: Exception) {
+                        Snackbar.make(binding.root, "No file picker available.", Snackbar.LENGTH_LONG).show()
+                    }
+                    1 -> appScanPrompt()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun scanFile(uri: Uri) {
+        val key = SecureKeys.vtKey(this)
+        if (key.isBlank()) return
+        val progress: AlertDialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Scanning")
+            .setMessage("Hashing the file and checking with VirusTotal...")
+            .setCancelable(false)
+            .create()
+        progress.applyScreenshotPolicy(this)
+        progress.show()
+        lifecycleScope.launch {
+            val text = withContext(Dispatchers.IO) {
+                try {
+                    val name = FileScanner.displayName(this@MainActivity, uri)
+                    val sha = FileScanner.sha256(this@MainActivity, uri)
+                    VirusTotalClient.describe(name, sha, VirusTotalClient.fileVerdict(sha, key))
+                } catch (e: Exception) {
+                    "Could not read that file: ${e.message ?: "unexpected error"}"
+                }
+            }
+            progress.dismiss()
+            if (!isFinishing && !isDestroyed) resultDialog("Scan result", text)
+        }
+    }
+
+    private fun appScanPrompt() {
+        lifecycleScope.launch {
+            val apps = withContext(Dispatchers.IO) { FileScanner.installedApps(this@MainActivity) }
+            if (apps.isEmpty()) {
+                Snackbar.make(binding.root, "No installed apps found to scan.", Snackbar.LENGTH_LONG).show()
+                return@launch
+            }
+            val minutes = (apps.size * 16) / 60 + 1
+            MaterialAlertDialogBuilder(this@MainActivity)
+                .setTitle("Scan installed apps")
+                .setMessage(
+                    "${apps.size} apps to check. A free VirusTotal key allows four lookups a minute, " +
+                        "so this takes roughly $minutes minutes. Nothing is uploaded, only the file fingerprint is sent. " +
+                        "You can stop it at any point."
+                )
+                .setPositiveButton("Start") { _, _ -> runAppScan(apps, SecureKeys.vtKey(this@MainActivity)) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun runAppScan(apps: List<FileScanner.Target>, key: String) {
+        val progress: AlertDialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Scanning apps")
+            .setMessage("Starting")
+            .setCancelable(false)
+            .setNegativeButton("Stop", null)
+            .create()
+        progress.applyScreenshotPolicy(this)
+        progress.show()
+
+        var stopped = false
+        progress.getButton(AlertDialog.BUTTON_NEGATIVE)?.setOnClickListener { stopped = true }
+
+        lifecycleScope.launch {
+            val flagged = ArrayList<String>()
+            val seen = HashMap<String, VirusTotalClient.Verdict>()
+            var done = 0
+            var note = ""
+            for (app in apps) {
+                if (stopped) break
+                val verdict = withContext(Dispatchers.IO) {
+                    try {
+                        val sha = FileScanner.sha256(File(app.path))
+                        seen[sha] ?: VirusTotalClient.fileVerdict(sha, key).also { seen[sha] = it }
+                    } catch (e: Exception) {
+                        VirusTotalClient.Verdict(
+                            VirusTotalClient.State.ERROR,
+                            detail = e.message ?: "could not read the package"
+                        )
+                    }
+                }
+                done++
+                when (verdict.state) {
+                    VirusTotalClient.State.MALICIOUS ->
+                        flagged.add("${app.label} flagged by ${verdict.malicious} of ${verdict.total} engines")
+                    VirusTotalClient.State.SUSPICIOUS ->
+                        flagged.add("${app.label} looks suspicious to ${verdict.suspicious} of ${verdict.total} engines")
+                    VirusTotalClient.State.BAD_KEY -> {
+                        note = verdict.detail
+                        stopped = true
+                    }
+                    VirusTotalClient.State.RATE_LIMITED -> note = "Hit the VirusTotal rate limit part way through."
+                    else -> {
+                    }
+                }
+                progress.setMessage("Checked $done of ${apps.size}. Flagged so far: ${flagged.size}")
+                if (!stopped && done < apps.size) {
+                    var waited = 0
+                    while (waited < 16 && !stopped) {
+                        delay(1000)
+                        waited++
+                    }
+                }
+            }
+            progress.dismiss()
+            if (isFinishing || isDestroyed) return@launch
+            val body = buildString {
+                append("Checked ").append(done).append(" of ").append(apps.size).append(" apps.")
+                if (note.isNotBlank()) append("\n").append(note)
+                append("\n\n")
+                if (flagged.isEmpty()) {
+                    append("Nothing was flagged.")
+                } else {
+                    append("Flagged:\n")
+                    flagged.forEach { append("  ").append(it).append("\n") }
+                }
+            }
+            resultDialog("App scan result", body)
+        }
+    }
+
+    private fun resultDialog(title: String, body: String) {
         val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("File Scan")
-            .setMessage("This engine will be implemented soon. It is currently being built from Hypatia's scan engine.")
-            .setPositiveButton("OK", null)
+            .setTitle(title)
+            .setMessage(body)
+            .setPositiveButton(android.R.string.ok, null)
             .create()
         dialog.applyScreenshotPolicy(this)
         dialog.show()

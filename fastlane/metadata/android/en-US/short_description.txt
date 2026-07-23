@@ -1,1 +1,1 @@
-De-Googled secure comms: private SMS, calls, encrypted contacts, threat scan.
+De-Googled secure comms: private SMS, calls, contacts, spam shield, file scan.

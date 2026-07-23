@@ -18,6 +18,7 @@ import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.data.ContactsStore
 import com.dresos.dressecurecomms.util.Actions
+import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.TimeFmt
 import androidx.core.widget.doAfterTextChanged
 import com.dresos.dressecurecomms.data.SmsRepository
@@ -94,18 +95,40 @@ class MessagesActivity : AppCompatActivity() {
     private fun nameFor(address: String): String = nameByNumber[address] ?: address
 
     private fun newMessage() {
-        val input = EditText(this).apply {
-            hint = "Number, or several separated by commas"
+        val input = android.widget.AutoCompleteTextView(this).apply {
+            hint = "Name, or number, or several separated by commas"
+            threshold = 1
+            setSingleLine(true)
             inputType = android.text.InputType.TYPE_CLASS_TEXT or
                 android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
         val pad = (16 * resources.displayMetrics.density).toInt()
         val wrap = android.widget.LinearLayout(this).apply { setPadding(pad, pad, pad, 0); addView(input) }
+
+        lifecycleScope.launch {
+            val people = withContext(Dispatchers.IO) { Contacts.suggestions(this@MessagesActivity) }
+            if (people.isEmpty()) return@launch
+            input.setAdapter(
+                android.widget.ArrayAdapter(
+                    this@MessagesActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    people
+                )
+            )
+            input.setOnItemClickListener { parent, _, pos, _ ->
+                val picked = parent.getItemAtPosition(pos) as? Contacts.Suggestion ?: return@setOnItemClickListener
+                input.setText(picked.number)
+                input.setSelection(picked.number.length)
+                input.dismissDropDown()
+            }
+        }
+
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.new_message)
             .setView(wrap)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                val n = input.text.toString().trim()
+                val typed = input.text.toString().trim()
+                val n = typed.substringAfter('(').substringBefore(')').trim().ifBlank { typed }
                 if (n.isNotEmpty()) openThread(n)
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -129,17 +152,24 @@ class MessagesActivity : AppCompatActivity() {
                 .show()
             return
         }
+        val labels = ArrayList<String>()
+        val actions = ArrayList<() -> Unit>()
+        labels.add("Call")
+        actions.add { Actions.dial(this, c.address) }
+        labels.add("Message")
+        actions.add { openThread(c.address, c.threadId) }
+        if (!Contacts.isSaved(this, c.address)) {
+            labels.add("Save to contacts")
+            actions.add { Actions.saveToContacts(this, c.address) }
+        }
+        labels.add("Copy number")
+        actions.add { Actions.copy(this, "number", c.address); snack(getString(R.string.number_copied)) }
+        labels.add("Delete")
+        actions.add { confirmDelete(c) }
+
         MaterialAlertDialogBuilder(this)
             .setTitle(nameFor(c.address))
-            .setItems(arrayOf("Call", "Message", "Save to contacts", "Copy number", "Delete")) { _, which ->
-                when (which) {
-                    0 -> Actions.dial(this, c.address)
-                    1 -> openThread(c.address, c.threadId)
-                    2 -> Actions.saveToContacts(this, c.address)
-                    3 -> { Actions.copy(this, "number", c.address); snack(getString(R.string.number_copied)) }
-                    4 -> confirmDelete(c)
-                }
-            }
+            .setItems(labels.toTypedArray()) { _, which -> actions[which]() }
             .show()
     }
 

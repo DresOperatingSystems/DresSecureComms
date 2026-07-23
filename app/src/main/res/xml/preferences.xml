@@ -50,6 +50,38 @@
             app:summary="@string/set_geo_apply_sub" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/set_cat_spam">
+        <SwitchPreferenceCompat
+            app:key="spam_block_premium"
+            app:title="@string/set_spam_premium_title"
+            app:summary="@string/set_spam_premium_sub"
+            app:defaultValue="true" />
+        <SwitchPreferenceCompat
+            app:key="spam_flag_spoofed"
+            app:title="@string/set_spam_spoofed_title"
+            app:summary="@string/set_spam_spoofed_sub"
+            app:defaultValue="true" />
+        <SwitchPreferenceCompat
+            app:key="spam_block_unknown"
+            app:title="@string/set_spam_unknown_title"
+            app:summary="@string/set_spam_unknown_sub"
+            app:defaultValue="false" />
+        <SwitchPreferenceCompat
+            app:key="spam_block_withheld"
+            app:title="@string/set_spam_withheld_title"
+            app:summary="@string/set_spam_withheld_sub"
+            app:defaultValue="false" />
+        <EditTextPreference
+            app:key="own_number"
+            app:title="@string/set_own_number_title"
+            app:summary="@string/set_own_number_sub"
+            app:useSimpleSummaryProvider="false" />
+        <Preference
+            app:key="spam_manage"
+            app:title="@string/set_spam_manage_title"
+            app:summary="@string/set_spam_manage_sub" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/set_cat_lock">
         <SwitchPreferenceCompat
             app:key="app_lock"

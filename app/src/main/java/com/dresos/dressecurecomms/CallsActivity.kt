@@ -19,6 +19,7 @@ import com.dresos.dressecurecomms.ui.TwoLineAdapter
 import com.dresos.dressecurecomms.util.TimeFmt
 import com.dresos.dressecurecomms.util.Actions
 import com.dresos.dressecurecomms.util.Contacts
+import com.dresos.dressecurecomms.data.SpamStore
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -131,17 +132,37 @@ class CallsActivity : AppCompatActivity() {
     private fun nameFor(number: String): String = nameByNumber[number] ?: number
 
     private fun entryActions(e: CallHistory.Entry) {
+        val labels = ArrayList<String>()
+        val actions = ArrayList<() -> Unit>()
+
+        labels.add("Call")
+        actions.add {
+            b.number.setText(e.number)
+            if (hasCall()) place() else requestCall.launch(Manifest.permission.CALL_PHONE)
+        }
+        labels.add("Message")
+        actions.add {
+            startActivity(Intent(this, ThreadActivity::class.java).putExtra("address", e.number))
+        }
+        if (!Contacts.isSaved(this, e.number)) {
+            labels.add("Save to contacts")
+            actions.add { Actions.saveToContacts(this, e.number) }
+        }
+        if (SpamStore.isBlocked(this, e.number)) {
+            labels.add("Unblock number")
+            actions.add { SpamStore.allow(this, e.number); snack("Calls from this number are allowed again.") }
+        } else {
+            labels.add("Block number")
+            actions.add { SpamStore.block(this, e.number, "blocked by you"); snack("Calls from this number will be blocked.") }
+        }
+        labels.add("Copy number")
+        actions.add { Actions.copy(this, "number", e.number); snack(getString(R.string.number_copied)) }
+        labels.add("Delete")
+        actions.add { deleteEntry(e.id) }
+
         MaterialAlertDialogBuilder(this)
             .setTitle(nameFor(e.number))
-            .setItems(arrayOf("Call", "Message", "Save to contacts", "Copy number", "Delete")) { _, which ->
-                when (which) {
-                    0 -> { b.number.setText(e.number); if (hasCall()) place() else requestCall.launch(Manifest.permission.CALL_PHONE) }
-                    1 -> startActivity(Intent(this, ThreadActivity::class.java).putExtra("address", e.number))
-                    2 -> Actions.saveToContacts(this, e.number)
-                    3 -> { Actions.copy(this, "number", e.number); snack(getString(R.string.number_copied)) }
-                    4 -> deleteEntry(e.id)
-                }
-            }
+            .setItems(labels.toTypedArray()) { _, which -> actions[which]() }
             .show()
     }
 

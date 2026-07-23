@@ -6,6 +6,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.Telephony
+import com.dresos.dressecurecomms.crypto.ContactKeys
 import com.dresos.dressecurecomms.crypto.SmsCrypto
 
 object SmsRepository {
@@ -46,7 +47,7 @@ object SmsRepository {
                 scanned++
                 val threadId = c.getLong(ti)
                 val addr = c.getString(ai) ?: continue
-                val body = decode(c.getString(bi) ?: "", key)
+                val body = decode(ctx, c.getString(bi) ?: "", key)
                 val time = c.getLong(di)
 
                 if (!byThread.containsKey(threadId)) {
@@ -77,7 +78,7 @@ object SmsRepository {
                 var addr = existing?.address
                 if (addr == null) addr = mmsAddress(ctx, id, if (incoming) 137 else 151)
                 if (addr.isBlank()) continue
-                val body = decode(mmsText(ctx, id), key).ifBlank { "[photo]" }
+                val body = decode(ctx, mmsText(ctx, id), key).ifBlank { "[photo]" }
                 byThread[threadId] = Conversation(threadId, addr, body, time)
             }
         }
@@ -102,7 +103,7 @@ object SmsRepository {
                 val di = c.getColumnIndexOrThrow(Telephony.Sms.DATE)
                 val tyi = c.getColumnIndexOrThrow(Telephony.Sms.TYPE)
                 while (c.moveToNext() && out.size < MAX_THREAD) {
-                    val body = decode(c.getString(bi) ?: "", key)
+                    val body = decode(ctx, c.getString(bi) ?: "", key)
                     val time = c.getLong(di)
                     val outgoing = c.getInt(tyi) != Telephony.Sms.MESSAGE_TYPE_INBOX
                     out.add(Msg(body, time, outgoing))
@@ -127,7 +128,7 @@ object SmsRepository {
                     val id = c.getLong(idi)
                     val time = c.getLong(di) * 1000
                     val outgoing = c.getInt(boxi) != Telephony.Mms.MESSAGE_BOX_INBOX
-                    out.add(Msg(decode(mmsText(ctx, id), key), time, outgoing, mmsImageUri(ctx, id)))
+                    out.add(Msg(decode(ctx, mmsText(ctx, id), key), time, outgoing, mmsImageUri(ctx, id)))
                 }
             }
         }
@@ -186,7 +187,7 @@ object SmsRepository {
         deleteThread(ctx, threadIdForAddress(ctx, address), address)
 
     fun incomingMms(ctx: Context, mmsId: Long, key: String): IncomingMms =
-        IncomingMms(mmsAddress(ctx, mmsId), decode(mmsText(ctx, mmsId), key))
+        IncomingMms(mmsAddress(ctx, mmsId), decode(ctx, mmsText(ctx, mmsId), key))
 
     fun latestIncomingMms(ctx: Context, key: String): IncomingMms? {
         return try {
@@ -197,7 +198,7 @@ object SmsRepository {
             )?.use { c ->
                 if (c.moveToFirst()) {
                     val id = c.getLong(0)
-                    IncomingMms(mmsAddress(ctx, id), decode(mmsText(ctx, id), key))
+                    IncomingMms(mmsAddress(ctx, id), decode(ctx, mmsText(ctx, id), key))
                 } else null
             }
         } catch (e: Exception) {
@@ -260,11 +261,17 @@ object SmsRepository {
         return ""
     }
 
-    private fun decode(body: String, key: String): String = try {
-        when {
-            !SmsCrypto.isEncrypted(body) -> body
-            key.isBlank() -> "[encrypted, set the shared key in Settings]"
-            else -> try { SmsCrypto.decrypt(body, key) } catch (e: Exception) { "[encrypted, wrong key]" }
+    private fun decode(ctx: Context, body: String, key: String): String = try {
+        if (!SmsCrypto.isEncrypted(body)) {
+            body
+        } else {
+            val keys = LinkedHashSet<String>()
+            if (key.isNotBlank()) keys.add(key)
+            keys.addAll(ContactKeys.allKeys(ctx))
+            when {
+                keys.isEmpty() -> "[encrypted, set a key in Settings or for this contact]"
+                else -> SmsCrypto.tryDecrypt(body, keys.toList()) ?: "[encrypted, wrong key]"
+            }
         }
     } catch (e: Exception) {
         body
