@@ -1,6 +1,6 @@
 # DresSecureComms
 
-DresSecureComms is a free, open-source, de-Googled secure communications app. It brings
+DresSecureComms is a free, open source, deGoogled secure communications app. It brings
 private messaging, calling, contacts, threat scanning, and location protection together in
 one place, with no Google services, no Firebase, no analytics, and no trackers. Messaging
 and calls work fully offline on your normal carrier line.
@@ -8,8 +8,8 @@ and calls work fully offline on your normal carrier line.
 ## What it is
 
 It is a core part of [DresOS, the Android defensive security system](https://github.com/The-DresOS-Foundation/DresOS-The-Android-Defensive-Security-System).
-Within DresOS, DresSecureComms takes over much of the day-to-day protection of the device,
-replacing several separate tools with a single hardened app so that messaging, calling, contacts, and on-device safety checks all run through one place you can trust.
+Within DresOS, DresSecureComms takes over much of the day to day protection of the device,
+replacing several separate tools with a single hardened app so that messaging, calling, contacts, and on device safety checks all run through one place you can trust.
 
 ## Download
 
@@ -36,7 +36,7 @@ replacing several separate tools with a single hardened app so that messaging, c
   in your contacts, or reject withheld numbers. Saved contacts always ring through, and
   everything it blocks is listed in Settings so you can undo it. It runs entirely on the
   device, so no number is ever sent anywhere to be checked.
-- **Contacts.** An encrypted on-device contacts vault. Add and edit contacts with a name,
+- **Contacts.** An encrypted on device contacts vault. Add and edit contacts with a name,
   number, and email, or import from the device. Nothing leaves the phone.
 - **Threat Scan.** Check a link against VirusTotal and get a clear safe, suspicious, or
   dangerous verdict before you open it.
@@ -61,12 +61,12 @@ their own code; the shared key in Settings still covers anyone you have not set 
 and messages encrypted with it still open. There is no account and no key server. Encrypted
 messages carry a short marker so the app knows to decode them; to anyone else, including
 your carrier, they are unreadable text. Calls over the carrier line are ordinary phone
-calls and are not end-to-end encrypted, and the app says so plainly.
+calls and are not end to end encrypted, and the app says so plainly.
 
-Contacts and the sent-message log are encrypted at rest using a key held in the Android
+Contacts and the sent message log are encrypted at rest using a key held in the Android
 Keystore, so they stay protected on the device.
 
-Per-contact keys landed in 1.8.0. The next step is widening encryption beyond messages and
+Per contact keys landed in 1.8.0. The next step is widening encryption beyond messages and
 the contact vault to more of the app.
 
 ## Setting it as your default apps
@@ -75,7 +75,7 @@ Because the app is installed outside the Play Store, Android first puts SMS and 
 access behind Restricted settings. Allow it once:
 
 1. Open Settings, then Apps, then DresSecureComms.
-2. Tap the three-dot menu in the top right.
+2. Tap the three dot menu in the top right.
 3. Tap Allow restricted settings.
 
 Then, inside the app, open Settings and Default apps and choose to set it as your default
@@ -116,18 +116,19 @@ Apache-2.0. Copyright © 2026 The DresOS Foundation.
 DresSecureComms requires SMS, Phone, and Location permissions to act as your secure, offline default Dialer and SMS app. We do not collect data. 
 Read our full [Privacy Policy](privacy_policy.md). [All Virus Checks Passed](https://www.virustotal.com/gui/file/5a7125c5dfb430994fc4c333dc84234db25ae552bfd808246530fdd0f8ad3637?nocache=1)
 
-## Thanks
-
-A huge thank you to [Fossify](https://github.com/FossifyOrg). We used Fossify Messages, Fossify Phone and Fossify Contacts as references while building this app, and without them the MMS robustness and several other quality-of-life improvements would not have been possible.
-
-A huge thank you must also go to [Fake Traveler](https://github.com/mcastillof/FakeTraveler). Our mock location components are built on references from their application.
-
-A huge thank you must also go to [URL Check](https://github.com/TrianguloY/URLCheck), As we used their scan part that connects to VirusTotal and built our URL scan engine up from that.
-
-A huge thank you must also go to [Hypatia](https://github.com/Divested-Mobile/Hypatia). Hypatia is the on-device scanner our File Scan is set to replace inside DresOS, and it set the bar for what a scanner on a de-Googled phone should do. Version one of our engine checks fingerprints against VirusTotal; the offline signature scanning Hypatia does so well is what version two brings.
-
 ## Donate
 
 > **Help fund future development.** DresOS is built by a small open source team in our spare time. If our guide, Magisk modules or app saved you a weekend of research, please tip the jar. Funds go to test devices, dev stations, and developer time on updates and future projects.
 
 [![Please Help fund future projects and keep this one going](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/dresos)
+
+
+## Thanks
+
+A huge thank you to [Fossify](https://github.com/FossifyOrg). We used Fossify Messages, Fossify Phone and Fossify Contacts as references while building this app, and without them the MMS robustness and several other quality of life improvements would not have been possible.
+
+A huge thank you must also go to [Fake Traveler](https://github.com/mcastillof/FakeTraveler). Our mock location components are built on references from their application.
+
+A huge thank you must also go to [URL Check](https://github.com/TrianguloY/URLCheck), As we used their scan part that connects to VirusTotal and built our URL scan engine up from that.
+
+A huge thank you must also go to [Hypatia](https://github.com/Divested-Mobile/Hypatia). Hypatia is the on device scanner our File Scan is set to replace inside DresOS, and it set the bar for what a scanner on a de Googled phone should do. Version one of our engine checks fingerprints against VirusTotal; the offline signature scanning Hypatia does so well is what version two brings.
