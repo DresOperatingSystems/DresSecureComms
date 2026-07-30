@@ -3,6 +3,7 @@ package com.dresos.dressecurecomms.data
 
 import android.content.Context
 import com.dresos.dressecurecomms.crypto.CryptoManager
+import com.dresos.dressecurecomms.util.PhoneKey
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -18,7 +19,7 @@ object SmsStore {
     }
 
     fun forAddress(ctx: Context, address: String): List<Sent> =
-        load(ctx).filter { it.address == address }
+        load(ctx).filter { PhoneKey.same(it.address, address) }
 
     fun load(ctx: Context): List<Sent> {
         val f = File(ctx.filesDir, FILE)
@@ -35,7 +36,7 @@ object SmsStore {
     }
 
     fun deleteForAddress(ctx: Context, address: String) {
-        save(ctx, load(ctx).filterNot { it.address == address })
+        save(ctx, load(ctx).filterNot { PhoneKey.same(it.address, address) })
     }
 
     private fun save(ctx: Context, list: List<Sent>) {

@@ -1,8 +1,6 @@
 /* Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms
 
-import com.dresos.dressecurecomms.util.SecureKeys
-
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent

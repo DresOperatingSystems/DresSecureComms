@@ -1,4 +1,4 @@
-DresSecureComms 1.8.0
+DresSecureComms 1.8.1
 
 DresSecureComms is a FOSS, de-Googled, all-in-one secure communications app.
 
@@ -10,8 +10,10 @@ Features:
   Settings still covers anyone you have not set one for. Also comes with photo sharing,
   group creation, search, and contact suggestions when you start a new message.
 - Calls: dial any number or call a saved contact. Calls use your normal carrier line. The
-  call log is searchable, the screen turns off when you hold the phone to your ear, and you
-  can block or unblock any number straight from the log.
+  call log is searchable, the screen turns off when you hold the phone to your ear and comes
+  straight back when you move it away, and you can block or unblock any number from the log.
+  If your phone has virtual proximity sensing rather than a real sensor and the screen misbehaves,
+  turn the blanking off under Settings, Calls.
 - Spam Shield: screens incoming calls before your phone rings. Rejects premium rate
   numbers, silences short codes, flags callers faking the first digits of your own number,
   and will silence anyone not in your contacts or reject withheld numbers if you want it
@@ -20,10 +22,12 @@ Features:
 - Contacts: an encrypted local vault. Add contacts by hand or import them from the device.
   Everything is stored encrypted at rest using the Android Keystore.
 - Threat Scan: check a URL against VirusTotal using your own free API key.
-- File Scan: check a single file, or every app on your device, against VirusTotal. The file
-  never leaves your phone. Only its SHA-256 fingerprint is sent, and that is checked against
-  seventy or more antivirus engines at once. A free API key allows four lookups a minute, so
-  a full sweep of your apps is paced accordingly and can be stopped at any point.
+- File Scan: check a single file, one app, or every app on your device against VirusTotal.
+  Only the SHA-256 fingerprint is sent, and that is checked against seventy or more antivirus
+  engines at once. A free API key allows four lookups a minute, so a full sweep of your apps
+  is paced accordingly and can be stopped at any point. If VirusTotal has never seen a file
+  it offers to upload that one file so the engines can analyse it, which is the only time
+  anything leaves your phone, and it always asks first. A sweep never uploads anything.
 - Metadata Wipe: strip GPS and EXIF metadata from a photo before you share it.
 - Geo Spoofer: set a mock GPS location, or have the app pick a random one. Enable this app
   as the mock location app under Developer options first.

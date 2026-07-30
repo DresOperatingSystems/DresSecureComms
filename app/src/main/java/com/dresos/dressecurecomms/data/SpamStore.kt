@@ -3,6 +3,7 @@ package com.dresos.dressecurecomms.data
 
 import android.content.Context
 import com.dresos.dressecurecomms.crypto.CryptoManager
+import com.dresos.dressecurecomms.util.PhoneKey
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -37,16 +38,7 @@ object SpamStore {
         File(ctx.filesDir, FILE).writeText(CryptoManager.encrypt(arr.toString()))
     }
 
-    private fun digits(s: String): String = s.filter { it.isDigit() }
-
-    private fun same(a: String, b: String): Boolean {
-        val da = digits(a)
-        val db = digits(b)
-        if (da.isEmpty() || db.isEmpty()) return a.trim() == b.trim()
-        if (da == db) return true
-        val n = minOf(da.length, db.length, 9)
-        return n >= 7 && da.takeLast(n) == db.takeLast(n)
-    }
+    private fun same(a: String, b: String): Boolean = PhoneKey.same(a, b)
 
     fun ruleFor(ctx: Context, number: String): Rule? =
         load(ctx).firstOrNull { same(it.number, number) }

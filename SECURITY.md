@@ -1,6 +1,6 @@
 # Security Notes for DresSecureComms
 
-**Applies to:** DresSecureComms 1.8.0 (versionCode 11) and later. Last revised July 2026.
+**Applies to:** DresSecureComms 1.8.1 (versionCode 12) and later. Last revised July 2026.
 
 DresSecureComms is an offline-first, de-Googled, root-friendly FOSS app. Its only network call is
 to the VirusTotal API, made solely when the user manually runs a scan with their own API key. This
@@ -30,9 +30,12 @@ deliberately not implemented, with reasons.
   Distinguished Name, no "Unknown" fields) and omit the Google dependency-metadata blob via
   `dependenciesInfo { includeInApk = false; includeInBundle = false }`.
 
-- **File Scan never transmits file contents.** Scanning computes a SHA-256 of the file or installed
-  package locally and sends only that digest to the VirusTotal file report endpoint. Nothing is
-  uploaded, so scanning a private document does not disclose it to a third party. Digests are also
+- **File Scan transmits file contents only when you ask it to.** Scanning computes a SHA-256 of the
+  file or installed package locally and sends only that digest to the VirusTotal file report endpoint,
+  so scanning a private document does not disclose it to a third party. If VirusTotal has no record of
+  that digest the app offers to upload the file, one file at a time, behind a prompt that states the
+  file leaves the device and that VirusTotal shares what it receives with its partners. No upload
+  happens without that confirmation and a sweep of installed apps never uploads. Digests are also
   de-duplicated within a run so the same file is never queried twice. See `scan/FileScanner.kt` and
   `net/VirusTotalClient.kt`.
 - **App enumeration uses scoped visibility, not `QUERY_ALL_PACKAGES`.** The device scan lists apps

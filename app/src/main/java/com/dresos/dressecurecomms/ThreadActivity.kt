@@ -7,7 +7,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.provider.Telephony
 import android.os.Bundle
 import android.telephony.SmsManager
 import android.view.View
@@ -22,7 +21,6 @@ import kotlinx.coroutines.withContext
 import com.dresos.dressecurecomms.crypto.ContactKeys
 import com.dresos.dressecurecomms.crypto.SmsCrypto
 import com.dresos.dressecurecomms.util.Contacts
-import com.dresos.dressecurecomms.data.ContactsStore
 import com.dresos.dressecurecomms.data.SmsRepository
 import com.dresos.dressecurecomms.data.SmsStore
 import com.dresos.dressecurecomms.databinding.ActivityThreadBinding
@@ -59,10 +57,12 @@ class ThreadActivity : AppCompatActivity() {
         threadId = intent.getLongExtra("threadId", -1L)
 
         val recipients = splitRecipients(address)
-        b.toolbar.title = if (recipients.size > 1) {
-            "${recipients.size} recipients"
-        } else {
-            ContactsStore.load(this).firstOrNull { it.number == address }?.name ?: address
+        b.toolbar.title = if (recipients.size > 1) "${recipients.size} recipients" else address
+        if (recipients.size == 1) {
+            lifecycleScope.launch {
+                val name = withContext(Dispatchers.IO) { Contacts.nameFor(this@ThreadActivity, address) }
+                b.toolbar.title = name
+            }
         }
         b.toolbar.setNavigationIcon(R.drawable.ic_back)
         b.toolbar.setNavigationOnClickListener { finish() }
@@ -210,24 +210,16 @@ class ThreadActivity : AppCompatActivity() {
                 sendMms(recipients, text, pendingImage, encryptOn)
             } else {
                 val payload = if (encryptOn) SmsCrypto.encrypt(text, key) else text
-                val sm = smsManager()
-                sm.sendMultipartTextMessage(address, null, sm.divideMessage(payload), null, null)
                 val now = System.currentTimeMillis()
+                if (threadId <= 0) threadId = SmsRepository.threadIdForAddress(this, address)
+                val row = SmsRepository.insertOutbox(this, address, payload, threadId, now)
+                val sm = smsManager()
+                val parts = sm.divideMessage(payload)
+                sm.sendMultipartTextMessage(
+                    address, null, parts,
+                    SmsSentReceiver.intents(this, parts.size, row, address), null
+                )
                 SmsStore.add(this, address, text, now)
-                if (SmsRepository.isDefault(this)) {
-                    try {
-                        if (threadId <= 0) threadId = SmsRepository.threadIdForAddress(this, address)
-                        val values = android.content.ContentValues().apply {
-                            put(Telephony.Sms.ADDRESS, address)
-                            put(Telephony.Sms.BODY, payload)
-                            put(Telephony.Sms.DATE, now)
-                            put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_SENT)
-                            if (threadId > 0) put(Telephony.Sms.THREAD_ID, threadId)
-                        }
-                        contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
-                    } catch (_: Exception) {
-                    }
-                }
                 b.input.setText("")
                 reload()
             }

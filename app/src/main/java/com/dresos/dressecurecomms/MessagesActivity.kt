@@ -7,7 +7,6 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -16,7 +15,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import androidx.preference.PreferenceManager
-import com.dresos.dressecurecomms.data.ContactsStore
 import com.dresos.dressecurecomms.util.Actions
 import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.TimeFmt
@@ -71,7 +69,7 @@ class MessagesActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val (items, names) = withContext(Dispatchers.IO) {
                 val convs = SmsRepository.conversations(this@MessagesActivity, key)
-                val map = ContactsStore.load(this@MessagesActivity).associate { it.number to it.name }
+                val map = Contacts.nameMap(this@MessagesActivity, convs.map { it.address })
                 convs to map
             }
             nameByNumber = names

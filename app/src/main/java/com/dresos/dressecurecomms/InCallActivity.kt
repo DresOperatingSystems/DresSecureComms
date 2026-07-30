@@ -4,6 +4,10 @@ package com.dresos.dressecurecomms
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -14,6 +18,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.databinding.ActivityIncallBinding
 import com.dresos.dressecurecomms.util.Actions
 import com.dresos.dressecurecomms.util.Contacts
@@ -21,16 +26,37 @@ import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
+import kotlin.math.sqrt
 
 class InCallActivity : AppCompatActivity() {
     private lateinit var b: ActivityIncallBinding
     private var callerName: String? = null
     private var phoneNumber: String? = null
     private var proximity: PowerManager.WakeLock? = null
+    private var sensors: SensorManager? = null
+    private var proximitySensor: Sensor? = null
+    private var motionSensor: Sensor? = null
+    private var near = false
+    private var blackoutOff = false
+    private var lastMagnitude = 0f
+    private var motionHits = 0
+    private var watched: Call? = null
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = render()
         override fun onDetailsChanged(call: Call, details: Call.Details) = render()
+    }
+
+    private val sensorListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            when (event.sensor?.type) {
+                Sensor.TYPE_PROXIMITY -> onProximityValue(event.values.firstOrNull())
+                Sensor.TYPE_ACCELEROMETER -> onMotionValues(event.values)
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +68,7 @@ class InCallActivity : AppCompatActivity() {
 
         val call = CallManager.call
         if (call == null) { finish(); return }
+        watched = call
         call.registerCallback(callback)
 
         val number = call.details.handle?.schemeSpecificPart
@@ -82,7 +109,7 @@ class InCallActivity : AppCompatActivity() {
             refreshControlStates()
         }
         b.addCallBtn.setOnClickListener {
-            try { startActivity(Intent(Intent.ACTION_DIAL)) } catch (_: Exception) {}
+            try { startActivity(Intent(Intent.ACTION_DIAL)) } catch (e: Exception) {}
         }
         b.keypadBtn.setOnClickListener {
             b.dtmfPanel.visibility =
@@ -135,37 +162,86 @@ class InCallActivity : AppCompatActivity() {
     }
 
     private fun setUpProximity() {
+        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREF_SCREEN_OFF, true)) return
         val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return
+        val sm = getSystemService(Context.SENSOR_SERVICE) as? SensorManager ?: return
+        val sensor = sm.getDefaultSensor(Sensor.TYPE_PROXIMITY) ?: return
         try {
             if (!pm.isWakeLockLevelSupported(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK)) return
             proximity = pm.newWakeLock(
                 PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK,
                 "dressecurecomms:proximity"
             )
+            sensors = sm
+            proximitySensor = sensor
+            motionSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         } catch (e: Exception) {
+        }
+    }
+
+    private fun onProximityValue(value: Float?) {
+        if (value == null) return
+        val limit = minOf(proximitySensor?.maximumRange ?: NEAR_CM, NEAR_CM)
+        near = value < limit
+        if (!near) {
+            blackoutOff = false
+            motionHits = 0
+        }
+        updateProximity()
+    }
+
+    private fun onMotionValues(values: FloatArray) {
+        if (values.size < 3) return
+        val magnitude = sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2])
+        val previous = lastMagnitude
+        lastMagnitude = magnitude
+        if (previous == 0f) return
+        if (proximity?.isHeld != true) { motionHits = 0; return }
+        if (abs(magnitude - previous) > MOTION_DELTA) motionHits++ else motionHits = 0
+        if (motionHits >= MOTION_HITS) {
+            blackoutOff = true
+            motionHits = 0
+            updateProximity()
         }
     }
 
     private fun updateProximity() {
         val lock = proximity ?: return
         val state = CallManager.call?.state
-        val active = state == Call.STATE_ACTIVE || state == Call.STATE_DIALING ||
-            state == Call.STATE_CONNECTING || state == Call.STATE_HOLDING
-        val wanted = active && !CallManager.isSpeakerOn()
+        val onCall = state == Call.STATE_ACTIVE || state == Call.STATE_DIALING
+        val wanted = onCall && near && !blackoutOff && !CallManager.isSpeakerOn()
         try {
             if (wanted && !lock.isHeld) lock.acquire(60 * 60 * 1000L)
-            if (!wanted && lock.isHeld) lock.release(PowerManager.RELEASE_FLAG_WAIT_FOR_NO_PROXIMITY)
+            if (!wanted && lock.isHeld) lock.release()
         } catch (e: Exception) {
         }
     }
 
     private fun releaseProximity() {
-        val lock = proximity ?: return
+        val lock = proximity
         try {
-            if (lock.isHeld) lock.release(PowerManager.RELEASE_FLAG_WAIT_FOR_NO_PROXIMITY)
+            if (lock != null && lock.isHeld) lock.release()
         } catch (e: Exception) {
         }
         proximity = null
+        sensors?.unregisterListener(sensorListener)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val sm = sensors ?: return
+        near = false
+        lastMagnitude = 0f
+        motionHits = 0
+        proximitySensor?.let { sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_NORMAL) }
+        motionSensor?.let { sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI) }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        sensors?.unregisterListener(sensorListener)
+        near = false
+        updateProximity()
     }
 
     private fun showWhenLocked() {
@@ -186,7 +262,7 @@ class InCallActivity : AppCompatActivity() {
 
     @Suppress("DEPRECATION")
     private fun render() {
-        val call = CallManager.call ?: run { finish(); return }
+        val call = CallManager.call ?: run { releaseProximity(); finish(); return }
         b.number.text = callerName ?: call.details.handle?.schemeSpecificPart ?: "Unknown"
         val state = call.state
         b.status.text = when (state) {
@@ -225,8 +301,16 @@ class InCallActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         releaseProximity()
-        CallManager.call?.unregisterCallback(callback)
+        watched?.unregisterCallback(callback)
+        watched = null
     }
 
     private fun toast(s: String) = Toast.makeText(this, s, Toast.LENGTH_SHORT).show()
+
+    private companion object {
+        const val PREF_SCREEN_OFF = "call_screen_off"
+        const val NEAR_CM = 5f
+        const val MOTION_DELTA = 3f
+        const val MOTION_HITS = 2
+    }
 }

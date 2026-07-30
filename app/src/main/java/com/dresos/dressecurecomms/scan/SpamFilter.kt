@@ -25,7 +25,7 @@ object SpamFilter {
 
     private fun looksShortCode(number: String): Boolean {
         val d = digits(number)
-        return d.isNotEmpty() && d.length <= 6
+        return d.length in 4..6
     }
 
     private fun looksSpoofed(ctx: Context, number: String): Boolean {

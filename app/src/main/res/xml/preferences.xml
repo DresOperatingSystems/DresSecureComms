@@ -50,6 +50,14 @@
             app:summary="@string/set_geo_apply_sub" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/set_cat_calls">
+        <SwitchPreferenceCompat
+            app:key="call_screen_off"
+            app:title="@string/set_call_screen_off_title"
+            app:summary="@string/set_call_screen_off_sub"
+            app:defaultValue="true" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/set_cat_spam">
         <SwitchPreferenceCompat
             app:key="spam_block_premium"

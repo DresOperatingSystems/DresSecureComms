@@ -13,9 +13,9 @@ replacing several separate tools with a single hardened app so that messaging, c
 
 ## Download
 
->[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.0)
+>[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.1)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="50">](https://apt.izzysoft.de/packages/com.dresos.dressecurecomms)
-[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.0)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.1)
 
 ## What it does
 
@@ -40,9 +40,10 @@ replacing several separate tools with a single hardened app so that messaging, c
   number, and email, or import from the device. Nothing leaves the phone.
 - **Threat Scan.** Check a link against VirusTotal and get a clear safe, suspicious, or
   dangerous verdict before you open it.
-- **File Scan.** Check a single file, or every app on your device, against VirusTotal. The
-  file never leaves the phone. Only its SHA-256 fingerprint is sent, and that comes back
-  checked against seventy or more antivirus engines at once. A free API key allows four
+- **File Scan.** Check a single file, one app, or every app on your device against VirusTotal.
+  Only the SHA-256 fingerprint is sent, and that comes back checked against seventy or more
+  antivirus engines at once. When VirusTotal has never seen a file, the app offers to upload
+  that one file for analysis, and it always asks first. A free API key allows four
   lookups a minute, so a full sweep of your apps paces itself and can be stopped at any
   point. Offline signature scanning is what the next version adds.
 - **Metadata Wipe.** Strip GPS and other hidden EXIF data from a photo before you share it.
@@ -89,18 +90,19 @@ Also you may experience some issues with SMS and Calling due to the encryption a
 
 ## Permissions and why
 
-- **RECEIVE_SMS, READ_SMS, SEND_SMS, RECEIVE_MMS, RECEIVE_WAP_PUSH** — to act as the
+- **RECEIVE_SMS, READ_SMS, SEND_SMS, RECEIVE_MMS, RECEIVE_WAP_PUSH**: to act as the
   default SMS app: receive, read, send, and manage your texts.
-- **CALL_PHONE, READ_PHONE_STATE, MANAGE_OWN_CALLS, ANSWER_PHONE_CALLS** — to place and
+- **CALL_PHONE, READ_PHONE_STATE, MANAGE_OWN_CALLS, ANSWER_PHONE_CALLS**: to place and
   handle calls as the default phone app.
-- **READ_CALL_LOG, WRITE_CALL_LOG** — to show your call history and let you delete it.
-- **READ_CONTACTS** — optional, only to import contacts into the encrypted vault.
-- **ACCESS_FINE_LOCATION, ACCESS_MOCK_LOCATION** — for the geo spoofer. Mock location is a
+- **READ_CALL_LOG, WRITE_CALL_LOG**: to show your call history and let you delete it.
+- **READ_CONTACTS**: optional, only to import contacts into the encrypted vault.
+- **ACCESS_FINE_LOCATION, ACCESS_MOCK_LOCATION**: for the geo spoofer. Mock location is a
   no-op permission that only makes the app selectable in Developer options.
-- **USE_BIOMETRIC** — for the app lock.
-- **POST_NOTIFICATIONS** — to show message and call notifications.
-- **INTERNET** — used only by Threat Scan and File Scan to reach VirusTotal. Nothing else
-  goes online, and File Scan sends a fingerprint, never a file.
+- **USE_BIOMETRIC**: for the app lock.
+- **POST_NOTIFICATIONS**: to show message and call notifications.
+- **INTERNET**: used only by Threat Scan and File Scan to reach VirusTotal. Nothing else
+  goes online. File Scan sends a fingerprint, and sends a file only when you pick that one
+  file and confirm the upload.
 
 ## Privacy
 

@@ -40,8 +40,13 @@ class DialerInCallService : InCallService() {
         )
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            runCatching { nm.deleteNotificationChannel(LEGACY_CHANNEL) }
             nm.createNotificationChannel(
-                NotificationChannel(CALL_CHANNEL, "Calls", NotificationManager.IMPORTANCE_HIGH)
+                NotificationChannel(CALL_CHANNEL, "Calls", NotificationManager.IMPORTANCE_HIGH).apply {
+                    setSound(null, null)
+                    enableVibration(false)
+                    setShowBadge(false)
+                }
             )
         }
         val ringing = CallManager.call?.state == Call.STATE_RINGING
@@ -51,6 +56,8 @@ class DialerInCallService : InCallService() {
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOngoing(true)
+            .setSilent(true)
+            .setOnlyAlertOnce(true)
             .setFullScreenIntent(pi, true)
             .setContentIntent(pi)
             .build()
@@ -59,7 +66,8 @@ class DialerInCallService : InCallService() {
     }
 
     companion object {
-        private const val CALL_CHANNEL = "calls"
+        private const val LEGACY_CHANNEL = "calls"
+        private const val CALL_CHANNEL = "calls_silent"
         private const val CALL_NOTIF = 1001
     }
 }

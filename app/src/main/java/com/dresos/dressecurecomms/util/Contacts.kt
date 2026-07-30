@@ -39,7 +39,7 @@ object Contacts {
         val out = LinkedHashMap<String, Suggestion>()
         for (c in ContactsStore.load(ctx)) {
             if (c.number.isBlank()) continue
-            val k = digits(c.number).ifEmpty { c.number }
+            val k = PhoneKey.key(c.number).ifEmpty { c.number }
             out[k] = Suggestion(c.name, c.number)
         }
         try {
@@ -57,7 +57,7 @@ object Contacts {
                     val name = c.getString(0).orEmpty()
                     val num = c.getString(1).orEmpty()
                     if (num.isBlank()) continue
-                    val k = digits(num).ifEmpty { num }
+                    val k = PhoneKey.key(num).ifEmpty { num }
                     if (!out.containsKey(k)) out[k] = Suggestion(name, num)
                 }
             }
@@ -66,16 +66,7 @@ object Contacts {
         return out.values.toList()
     }
 
-    private fun digits(s: String): String = s.filter { it.isDigit() }
-
-    private fun sameNumber(a: String, b: String): Boolean {
-        val da = digits(a)
-        val db = digits(b)
-        if (da.isEmpty() || db.isEmpty()) return a == b
-        if (da == db) return true
-        val n = minOf(da.length, db.length, 9)
-        return n >= 7 && da.takeLast(n) == db.takeLast(n)
-    }
+    private fun sameNumber(a: String, b: String): Boolean = PhoneKey.same(a, b)
 
     private fun fromStore(stored: List<ContactsStore.Contact>, number: String): String? =
         stored.firstOrNull { sameNumber(it.number, number) }?.name

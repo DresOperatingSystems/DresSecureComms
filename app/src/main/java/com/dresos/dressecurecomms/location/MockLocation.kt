@@ -7,24 +7,39 @@ import android.location.LocationManager
 import android.os.SystemClock
 
 object MockLocation {
+    private val PROVIDERS = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+
     fun apply(context: Context, lat: Double, lng: Double): String {
         return try {
             val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val provider = LocationManager.GPS_PROVIDER
-            try {
-                lm.addTestProvider(provider, false, true, false, false, true, true, true, 1, 5)
-            } catch (_: Exception) {
+            var applied = 0
+            var failure = ""
+            for (provider in PROVIDERS) {
+                try {
+                    try {
+                        lm.addTestProvider(provider, false, true, false, false, true, true, true, 1, 5)
+                    } catch (e: Exception) {
+                    }
+                    lm.setTestProviderEnabled(provider, true)
+                    lm.setTestProviderLocation(
+                        provider,
+                        Location(provider).apply {
+                            latitude = lat
+                            longitude = lng
+                            accuracy = 1f
+                            time = System.currentTimeMillis()
+                            elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                        }
+                    )
+                    applied++
+                } catch (e: SecurityException) {
+                    throw e
+                } catch (e: Exception) {
+                    failure = e.message ?: ""
+                }
             }
-            lm.setTestProviderEnabled(provider, true)
-            val loc = Location(provider).apply {
-                latitude = lat
-                longitude = lng
-                accuracy = 1f
-                time = System.currentTimeMillis()
-                elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
-            }
-            lm.setTestProviderLocation(provider, loc)
-            "Mock location set to $lat, $lng"
+            if (applied == 0) "Could not set mock location. $failure".trim()
+            else "Mock location set to $lat, $lng"
         } catch (e: SecurityException) {
             "Enable this app as the mock location app in Developer options first."
         } catch (e: Exception) {

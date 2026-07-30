@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.8.1
+
+### Added
+- File Scan can now send a file to VirusTotal when VirusTotal has never seen it. Until now it told you the file was unknown and left you there, which is the most common result for anything built outside the Play Store. The upload is per file, you are asked every time, and the prompt says plainly that the file leaves your phone and that VirusTotal keeps what it is sent and shares it with the antivirus companies it works with. Nothing is ever uploaded on its own and a sweep of your installed apps never uploads anything. Fingerprint checking is unchanged and is still what happens by default.
+- You can now scan one app on its own instead of sweeping all of them, and after a full sweep the apps VirusTotal has never seen are listed so you can send one for analysis.
+- The geo spoofer now sets the network location as well as GPS, so apps that read your rough location instead of a satellite fix see the spoofed position too.
+
+### Fixed
+- Messages you received sometimes showed up only in the notification and never in the conversation. Android can file one person under two separate conversation ids when their number reaches you in one format and you saved it in another, with the country code against without it for instance, and the app was only ever reading one of them. Conversations are now matched on the number itself, so everything with that person appears in a single thread whichever format it arrived in, and threads that had already been split are shown joined back together without your messages being moved or rewritten.
+- Incoming calls no longer play the message notification sound just before the ringtone. The call notification was going out on a channel that carried Android's default notification sound, so you heard that first and the ringtone second.
+- The screen now always comes back on after you move the phone away from your ear. The app had been asking Android to hold the screen off until the proximity sensor reported clear, which never happens on phones that use virtual proximity sensing instead of a real sensor, so the screen stayed dark and you had to wake it to end the call. It now brings the screen straight back, only blanks the screen in the first place when the phone exposes a real proximity sensor, and abandons blanking for the rest of the call if it detects the phone being moved while the screen is off. There is also a new switch under Settings, Calls, to turn the whole thing off.
+- Conversations now show the contact name for people saved in your phone's own contacts and not only in the encrypted vault, which is what the notification had been showing all along. The conversation title does the same.
+- A message that fails to send is now marked as failed and you are told about it, instead of the app recording it as sent and saying nothing. Sending is confirmed by the network now rather than assumed the moment you press send.
+- Replying straight from a notification now shows up in the conversation, and a reply longer than one message is split properly instead of being dropped.
+- A message can no longer be filed twice if Android delivers it twice.
+- Deleting a conversation now clears every thread that belongs to that person, not just the one that happened to be open.
+
 ## 1.8.0
 
 ### Added

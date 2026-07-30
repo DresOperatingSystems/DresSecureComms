@@ -7,6 +7,10 @@ import android.os.Build
 import android.os.IBinder
 import android.telephony.SmsManager
 import android.telephony.TelephonyManager
+import com.dresos.dressecurecomms.crypto.ContactKeys
+import com.dresos.dressecurecomms.crypto.SmsCrypto
+import com.dresos.dressecurecomms.data.SmsRepository
+import com.dresos.dressecurecomms.data.SmsStore
 
 class HeadlessSmsSendService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
@@ -20,8 +24,18 @@ class HeadlessSmsSendService : Service() {
                     @Suppress("DEPRECATION")
                     val sm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                         getSystemService(SmsManager::class.java) else SmsManager.getDefault()
-                    sm.sendTextMessage(address, null, text, null, null)
-                } catch (_: Exception) {
+                    val contactKey = ContactKeys.forAddress(this, address)
+                    val payload = if (contactKey.isNullOrBlank()) text else SmsCrypto.encrypt(text, contactKey)
+                    val now = System.currentTimeMillis()
+                    val threadId = SmsRepository.threadIdForAddress(this, address)
+                    val row = SmsRepository.insertOutbox(this, address, payload, threadId, now)
+                    val parts = sm.divideMessage(payload)
+                    sm.sendMultipartTextMessage(
+                        address, null, parts,
+                        SmsSentReceiver.intents(this, parts.size, row, address), null
+                    )
+                    SmsStore.add(this, address, text, now)
+                } catch (e: Exception) {
                 }
             }
         }

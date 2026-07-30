@@ -2,12 +2,14 @@
 package com.dresos.dressecurecomms.data
 
 import android.app.role.RoleManager
+import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.Telephony
 import com.dresos.dressecurecomms.crypto.ContactKeys
 import com.dresos.dressecurecomms.crypto.SmsCrypto
+import com.dresos.dressecurecomms.util.PhoneKey
 
 object SmsRepository {
     data class Conversation(val threadId: Long, val address: String, val snippet: String, val time: Long)
@@ -17,6 +19,7 @@ object SmsRepository {
 
     private const val MAX_SCAN = 5000
     private const val MAX_THREAD = 2000
+    private const val DUP_WINDOW = 1000L
 
     fun isDefault(ctx: Context): Boolean {
 
@@ -76,23 +79,62 @@ object SmsRepository {
                 val id = c.getLong(idi)
                 val incoming = c.getInt(boxi) == Telephony.Mms.MESSAGE_BOX_INBOX
                 var addr = existing?.address
-                if (addr == null) addr = mmsAddress(ctx, id, if (incoming) 137 else 151)
+                if (addr.isNullOrBlank()) addr = mmsAddress(ctx, id, if (incoming) 137 else 151)
                 if (addr.isBlank()) continue
                 val body = decode(ctx, mmsText(ctx, id), key).ifBlank { "[photo]" }
                 byThread[threadId] = Conversation(threadId, addr, body, time)
             }
         }
-        return byThread.values.sortedByDescending { it.time }
+        return merge(byThread.values)
+    }
+
+    private fun merge(items: Collection<Conversation>): List<Conversation> {
+        val out = LinkedHashMap<String, Conversation>()
+        for (c in items.sortedByDescending { it.time }) {
+            val k = PhoneKey.key(c.address).ifEmpty { "thread:${c.threadId}" }
+            if (!out.containsKey(k)) out[k] = c
+        }
+        return out.values.sortedByDescending { it.time }
+    }
+
+    fun threadIdsFor(ctx: Context, threadId: Long, address: String): Set<Long> {
+        val out = LinkedHashSet<Long>()
+        if (threadId > 0) out.add(threadId)
+        if (address.isBlank()) return out
+        val resolved = threadIdForAddress(ctx, address)
+        if (resolved > 0) out.add(resolved)
+        try {
+            ctx.contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                arrayOf(Telephony.Sms.THREAD_ID, Telephony.Sms.ADDRESS),
+                null, null, "${Telephony.Sms.DATE} DESC"
+            )?.use { c ->
+                val ti = c.getColumnIndexOrThrow(Telephony.Sms.THREAD_ID)
+                val ai = c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
+                var scanned = 0
+                while (c.moveToNext() && scanned < MAX_SCAN) {
+                    scanned++
+                    val addr = c.getString(ai) ?: continue
+                    if (PhoneKey.same(addr, address)) out.add(c.getLong(ti))
+                }
+            }
+        } catch (e: Exception) {
+        }
+        return out.filter { it > 0 }.toSet()
     }
 
     fun threadById(ctx: Context, threadId: Long, address: String, key: String): List<Msg> {
+        val ids = threadIdsFor(ctx, threadId, address)
         val out = ArrayList<Msg>()
-        if (threadId > 0) {
+        if (ids.isNotEmpty()) {
+            val holes = ids.joinToString(",") { "?" }
+            val args = ids.map { it.toString() }.toTypedArray()
+
             val cols = arrayOf(Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE)
             val cursor = try {
                 ctx.contentResolver.query(
                     Telephony.Sms.CONTENT_URI, cols,
-                    "${Telephony.Sms.THREAD_ID}=?", arrayOf(threadId.toString()),
+                    "${Telephony.Sms.THREAD_ID} IN ($holes)", args,
                     "${Telephony.Sms.DATE} ASC"
                 )
             } catch (e: Exception) {
@@ -114,7 +156,7 @@ object SmsRepository {
             val mcur = try {
                 ctx.contentResolver.query(
                     Telephony.Mms.CONTENT_URI, mcols,
-                    "${Telephony.Mms.THREAD_ID}=?", arrayOf(threadId.toString()),
+                    "${Telephony.Mms.THREAD_ID} IN ($holes)", args,
                     "${Telephony.Mms.DATE} ASC"
                 )
             } catch (e: Exception) {
@@ -133,32 +175,83 @@ object SmsRepository {
             }
         }
         for (s in SmsStore.forAddress(ctx, address)) {
-            val dup = out.any { it.outgoing && it.body == s.body && kotlin.math.abs(it.time - s.time) < 10000 }
-            if (!dup) out.add(Msg(s.body, s.time, true))
+            out.add(Msg(s.body, s.time, true))
         }
-        out.sortBy { it.time }
+        return dedupe(out)
+    }
+
+    private fun dedupe(items: List<Msg>): List<Msg> {
+        val out = ArrayList<Msg>(items.size)
+        for (m in items.sortedBy { it.time }) {
+            val dup = out.any {
+                it.outgoing == m.outgoing && it.body == m.body && it.imageUri == m.imageUri &&
+                    kotlin.math.abs(it.time - m.time) < DUP_WINDOW
+            }
+            if (!dup) out.add(m)
+        }
         return out
     }
 
     fun threadIdForAddress(ctx: Context, address: String): Long =
         try { Telephony.Threads.getOrCreateThreadId(ctx, address) } catch (e: Exception) { -1 }
 
+    fun insertOutbox(ctx: Context, address: String, body: String, threadId: Long, time: Long): Uri? {
+        if (!isDefault(ctx)) return null
+        return try {
+            val values = ContentValues().apply {
+                put(Telephony.Sms.ADDRESS, address)
+                put(Telephony.Sms.BODY, body)
+                put(Telephony.Sms.DATE, time)
+                put(Telephony.Sms.DATE_SENT, time)
+                put(Telephony.Sms.READ, 1)
+                put(Telephony.Sms.SEEN, 1)
+                put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_OUTBOX)
+                if (threadId > 0) put(Telephony.Sms.THREAD_ID, threadId)
+            }
+            ctx.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun markSendResult(ctx: Context, row: Uri?, ok: Boolean) {
+        if (row == null) return
+        try {
+            if (ok && typeOf(ctx, row) != Telephony.Sms.MESSAGE_TYPE_OUTBOX) return
+            val values = ContentValues().apply {
+                put(
+                    Telephony.Sms.TYPE,
+                    if (ok) Telephony.Sms.MESSAGE_TYPE_SENT else Telephony.Sms.MESSAGE_TYPE_FAILED
+                )
+            }
+            ctx.contentResolver.update(row, values, null, null)
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun typeOf(ctx: Context, row: Uri): Int = try {
+        ctx.contentResolver.query(row, arrayOf(Telephony.Sms.TYPE), null, null, null)?.use { c ->
+            if (c.moveToFirst()) c.getInt(0) else -1
+        } ?: -1
+    } catch (e: Exception) {
+        -1
+    }
+
     fun deleteThread(ctx: Context, threadId: Long, address: String): DeleteResult {
         SmsStore.deleteForAddress(ctx, address)
 
         var removed = 0
         var denied = false
-        val tid = if (threadId > 0) threadId else threadIdForAddress(ctx, address)
 
-        fun attempt(uri: android.net.Uri, sel: String, args: Array<String>): Int = try {
+        fun attempt(uri: Uri, sel: String, args: Array<String>): Int = try {
             ctx.contentResolver.delete(uri, sel, args)
         } catch (e: SecurityException) {
             denied = true; 0
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             0
         }
 
-        if (tid > 0) {
+        for (tid in threadIdsFor(ctx, threadId, address)) {
             removed += attempt(Telephony.Sms.CONTENT_URI, "${Telephony.Sms.THREAD_ID}=?", arrayOf(tid.toString()))
             attempt(Telephony.Mms.CONTENT_URI, "thread_id=?", arrayOf(tid.toString()))
         }
@@ -167,18 +260,23 @@ object SmsRepository {
             try {
                 val ids = ArrayList<Long>()
                 ctx.contentResolver.query(
-                    Telephony.Sms.CONTENT_URI, arrayOf(Telephony.Sms._ID),
-                    "${Telephony.Sms.ADDRESS}=?", arrayOf(address), null
+                    Telephony.Sms.CONTENT_URI, arrayOf(Telephony.Sms._ID, Telephony.Sms.ADDRESS),
+                    null, null, null
                 )?.use { c ->
                     val i = c.getColumnIndexOrThrow(Telephony.Sms._ID)
-                    while (c.moveToNext()) ids.add(c.getLong(i))
+                    val ai = c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
+                    var scanned = 0
+                    while (c.moveToNext() && scanned < MAX_SCAN) {
+                        scanned++
+                        val addr = c.getString(ai) ?: continue
+                        if (PhoneKey.same(addr, address)) ids.add(c.getLong(i))
+                    }
                 }
                 for (id in ids) {
                     removed += attempt(Telephony.Sms.CONTENT_URI, "${Telephony.Sms._ID}=?", arrayOf(id.toString()))
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
             }
-            removed += attempt(Telephony.Sms.CONTENT_URI, "${Telephony.Sms.ADDRESS}=?", arrayOf(address))
         }
         return DeleteResult(isDefault = !denied, removed = removed)
     }
@@ -222,11 +320,11 @@ object SmsRepository {
                     } else try {
                         ctx.contentResolver.openInputStream(Uri.parse("content://mms/part/${c.getLong(idi)}"))
                             ?.use { sb.append(String(it.readBytes(), Charsets.UTF_8)) }
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
                     }
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
         }
         return sb.toString()
     }
@@ -243,7 +341,7 @@ object SmsRepository {
                     if ((c.getString(cti) ?: "").startsWith("image/")) return "content://mms/part/${c.getLong(idi)}"
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
         }
         return null
     }
@@ -256,7 +354,7 @@ object SmsRepository {
             )?.use { c ->
                 if (c.moveToFirst()) return c.getString(0) ?: ""
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
         }
         return ""
     }
