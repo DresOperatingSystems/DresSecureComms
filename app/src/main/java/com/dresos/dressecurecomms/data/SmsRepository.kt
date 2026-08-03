@@ -9,7 +9,6 @@ import android.os.Build
 import android.provider.Telephony
 import com.dresos.dressecurecomms.crypto.ContactKeys
 import com.dresos.dressecurecomms.crypto.SmsCrypto
-import com.dresos.dressecurecomms.util.PhoneKey
 
 object SmsRepository {
     data class Conversation(val threadId: Long, val address: String, val snippet: String, val time: Long)
@@ -17,12 +16,14 @@ object SmsRepository {
     data class IncomingMms(val address: String, val body: String)
     data class DeleteResult(val isDefault: Boolean, val removed: Int)
 
-    private const val MAX_SCAN = 5000
     private const val MAX_THREAD = 2000
     private const val DUP_WINDOW = 1000L
+    private val CONVERSATIONS: Uri = Uri.parse("content://mms-sms/conversations?simple=true")
+    private val CANONICAL: Uri = Uri.parse("content://mms-sms/canonical-addresses")
+
+    @Volatile private var archivedColumnAvailable = true
 
     fun isDefault(ctx: Context): Boolean {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val rm = ctx.getSystemService(RoleManager::class.java)
             if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_SMS) && rm.isRoleHeld(RoleManager.ROLE_SMS)) {
@@ -33,145 +34,102 @@ object SmsRepository {
     }
 
     fun conversations(ctx: Context, key: String): List<Conversation> {
-        val byThread = LinkedHashMap<Long, Conversation>()
-        val cols = arrayOf(Telephony.Sms.THREAD_ID, Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE)
-        val cursor = try {
-            ctx.contentResolver.query(Telephony.Sms.CONTENT_URI, cols, null, null, "${Telephony.Sms.DATE} DESC")
-        } catch (e: Exception) {
-            null
-        }
-        cursor?.use { c ->
-            val ti = c.getColumnIndexOrThrow(Telephony.Sms.THREAD_ID)
-            val ai = c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
-            val bi = c.getColumnIndexOrThrow(Telephony.Sms.BODY)
-            val di = c.getColumnIndexOrThrow(Telephony.Sms.DATE)
-            var scanned = 0
-            while (c.moveToNext() && scanned < MAX_SCAN) {
-                scanned++
-                val threadId = c.getLong(ti)
-                val addr = c.getString(ai) ?: continue
-                val body = decode(ctx, c.getString(bi) ?: "", key)
-                val time = c.getLong(di)
-
-                if (!byThread.containsKey(threadId)) {
-                    byThread[threadId] = Conversation(threadId, addr, body, time)
+        val out = ArrayList<Conversation>()
+        val names = canonicalAddresses(ctx)
+        for (attempt in 0..1) {
+            val cols = if (archivedColumnAvailable) {
+                arrayOf("_id", "snippet", "date", "recipient_ids", "archived")
+            } else {
+                arrayOf("_id", "snippet", "date", "recipient_ids")
+            }
+            try {
+                ctx.contentResolver.query(CONVERSATIONS, cols, "message_count > 0", null, "date DESC")?.use { c ->
+                    val idi = c.getColumnIndexOrThrow("_id")
+                    val si = c.getColumnIndexOrThrow("snippet")
+                    val di = c.getColumnIndexOrThrow("date")
+                    val ri = c.getColumnIndexOrThrow("recipient_ids")
+                    while (c.moveToNext()) {
+                        val threadId = c.getLong(idi)
+                        val address = (c.getString(ri) ?: "")
+                            .split(' ')
+                            .mapNotNull { names[it.trim()] }
+                            .filter { it.isNotBlank() }
+                            .joinToString(", ")
+                        if (address.isBlank()) continue
+                        val snippet = decode(ctx, c.getString(si) ?: "", key)
+                        out.add(Conversation(threadId, address, snippet, c.getLong(di)))
+                    }
+                }
+                return out
+            } catch (e: Exception) {
+                if (archivedColumnAvailable) {
+                    archivedColumnAvailable = false
+                    out.clear()
+                } else {
+                    return out
                 }
             }
         }
-        val mcols = arrayOf(Telephony.Mms._ID, Telephony.Mms.THREAD_ID, Telephony.Mms.DATE, Telephony.Mms.MESSAGE_BOX)
-        val mcur = try {
-            ctx.contentResolver.query(Telephony.Mms.CONTENT_URI, mcols, null, null, "${Telephony.Mms.DATE} DESC")
-        } catch (e: Exception) {
-            null
-        }
-        mcur?.use { c ->
-            val idi = c.getColumnIndexOrThrow(Telephony.Mms._ID)
-            val ti = c.getColumnIndexOrThrow(Telephony.Mms.THREAD_ID)
-            val di = c.getColumnIndexOrThrow(Telephony.Mms.DATE)
-            val boxi = c.getColumnIndexOrThrow(Telephony.Mms.MESSAGE_BOX)
-            var scanned = 0
-            while (c.moveToNext() && scanned < MAX_SCAN) {
-                scanned++
-                val threadId = c.getLong(ti)
-                val time = c.getLong(di) * 1000
-                val existing = byThread[threadId]
-                if (existing != null && existing.time >= time) continue
-                val id = c.getLong(idi)
-                val incoming = c.getInt(boxi) == Telephony.Mms.MESSAGE_BOX_INBOX
-                var addr = existing?.address
-                if (addr.isNullOrBlank()) addr = mmsAddress(ctx, id, if (incoming) 137 else 151)
-                if (addr.isBlank()) continue
-                val body = decode(ctx, mmsText(ctx, id), key).ifBlank { "[photo]" }
-                byThread[threadId] = Conversation(threadId, addr, body, time)
-            }
-        }
-        return merge(byThread.values)
+        return out
     }
 
-    private fun merge(items: Collection<Conversation>): List<Conversation> {
-        val out = LinkedHashMap<String, Conversation>()
-        for (c in items.sortedByDescending { it.time }) {
-            val k = PhoneKey.key(c.address).ifEmpty { "thread:${c.threadId}" }
-            if (!out.containsKey(k)) out[k] = c
-        }
-        return out.values.sortedByDescending { it.time }
-    }
-
-    fun threadIdsFor(ctx: Context, threadId: Long, address: String): Set<Long> {
-        val out = LinkedHashSet<Long>()
-        if (threadId > 0) out.add(threadId)
-        if (address.isBlank()) return out
-        val resolved = threadIdForAddress(ctx, address)
-        if (resolved > 0) out.add(resolved)
+    private fun canonicalAddresses(ctx: Context): Map<String, String> {
+        val map = HashMap<String, String>()
         try {
-            ctx.contentResolver.query(
-                Telephony.Sms.CONTENT_URI,
-                arrayOf(Telephony.Sms.THREAD_ID, Telephony.Sms.ADDRESS),
-                null, null, "${Telephony.Sms.DATE} DESC"
-            )?.use { c ->
-                val ti = c.getColumnIndexOrThrow(Telephony.Sms.THREAD_ID)
-                val ai = c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
-                var scanned = 0
-                while (c.moveToNext() && scanned < MAX_SCAN) {
-                    scanned++
-                    val addr = c.getString(ai) ?: continue
-                    if (PhoneKey.same(addr, address)) out.add(c.getLong(ti))
+            ctx.contentResolver.query(CANONICAL, arrayOf("_id", "address"), null, null, null)?.use { c ->
+                while (c.moveToNext()) {
+                    map[c.getString(0) ?: continue] = c.getString(1) ?: ""
                 }
             }
         } catch (e: Exception) {
         }
-        return out.filter { it > 0 }.toSet()
+        return map
     }
 
     fun threadById(ctx: Context, threadId: Long, address: String, key: String): List<Msg> {
-        val ids = threadIdsFor(ctx, threadId, address)
+        val id = if (threadId > 0) threadId else threadIdForAddress(ctx, address)
         val out = ArrayList<Msg>()
-        if (ids.isNotEmpty()) {
-            val holes = ids.joinToString(",") { "?" }
-            val args = ids.map { it.toString() }.toTypedArray()
-
-            val cols = arrayOf(Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE)
-            val cursor = try {
+        if (id > 0) {
+            val args = arrayOf(id.toString())
+            try {
                 ctx.contentResolver.query(
-                    Telephony.Sms.CONTENT_URI, cols,
-                    "${Telephony.Sms.THREAD_ID} IN ($holes)", args,
-                    "${Telephony.Sms.DATE} ASC"
-                )
-            } catch (e: Exception) {
-                null
-            }
-            cursor?.use { c ->
-                val bi = c.getColumnIndexOrThrow(Telephony.Sms.BODY)
-                val di = c.getColumnIndexOrThrow(Telephony.Sms.DATE)
-                val tyi = c.getColumnIndexOrThrow(Telephony.Sms.TYPE)
-                while (c.moveToNext() && out.size < MAX_THREAD) {
-                    val body = decode(ctx, c.getString(bi) ?: "", key)
-                    val time = c.getLong(di)
-                    val outgoing = c.getInt(tyi) != Telephony.Sms.MESSAGE_TYPE_INBOX
-                    out.add(Msg(body, time, outgoing))
+                    Telephony.Sms.CONTENT_URI,
+                    arrayOf(Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE),
+                    "${Telephony.Sms.THREAD_ID} = ?", args,
+                    "${Telephony.Sms.DATE} ASC LIMIT $MAX_THREAD"
+                )?.use { c ->
+                    while (c.moveToNext()) {
+                        out.add(
+                            Msg(
+                                decode(ctx, c.getString(0) ?: "", key),
+                                c.getLong(1),
+                                c.getInt(2) != Telephony.Sms.MESSAGE_TYPE_INBOX
+                            )
+                        )
+                    }
                 }
+            } catch (e: Exception) {
             }
-
-            val mcols = arrayOf(Telephony.Mms._ID, Telephony.Mms.DATE, Telephony.Mms.MESSAGE_BOX)
-            val mcur = try {
+            try {
                 ctx.contentResolver.query(
-                    Telephony.Mms.CONTENT_URI, mcols,
-                    "${Telephony.Mms.THREAD_ID} IN ($holes)", args,
-                    "${Telephony.Mms.DATE} ASC"
-                )
-            } catch (e: Exception) {
-                null
-            }
-            mcur?.use { c ->
-                val idi = c.getColumnIndexOrThrow(Telephony.Mms._ID)
-                val di = c.getColumnIndexOrThrow(Telephony.Mms.DATE)
-                val boxi = c.getColumnIndexOrThrow(Telephony.Mms.MESSAGE_BOX)
-                while (c.moveToNext() && out.size < MAX_THREAD) {
-                    val id = c.getLong(idi)
-                    val time = c.getLong(di) * 1000
-                    val outgoing = c.getInt(boxi) != Telephony.Mms.MESSAGE_BOX_INBOX
-                    out.add(Msg(decode(ctx, mmsText(ctx, id), key), time, outgoing, mmsImageUri(ctx, id)))
+                    Telephony.Mms.CONTENT_URI,
+                    arrayOf(Telephony.Mms._ID, Telephony.Mms.DATE, Telephony.Mms.MESSAGE_BOX),
+                    "${Telephony.Mms.THREAD_ID} = ?", args,
+                    "${Telephony.Mms.DATE} ASC LIMIT $MAX_THREAD"
+                )?.use { c ->
+                    while (c.moveToNext()) {
+                        val mid = c.getLong(0)
+                        out.add(
+                            Msg(
+                                decode(ctx, mmsText(ctx, mid), key),
+                                c.getLong(1) * 1000,
+                                c.getInt(2) != Telephony.Mms.MESSAGE_BOX_INBOX,
+                                mmsImageUri(ctx, mid)
+                            )
+                        )
+                    }
                 }
+            } catch (e: Exception) {
             }
         }
         for (s in SmsStore.forAddress(ctx, address)) {
@@ -192,8 +150,11 @@ object SmsRepository {
         return out
     }
 
-    fun threadIdForAddress(ctx: Context, address: String): Long =
-        try { Telephony.Threads.getOrCreateThreadId(ctx, address) } catch (e: Exception) { -1 }
+    fun threadIdForAddress(ctx: Context, address: String): Long = try {
+        Telephony.Threads.getOrCreateThreadId(ctx, address)
+    } catch (e: Exception) {
+        -1
+    }
 
     fun insertOutbox(ctx: Context, address: String, body: String, threadId: Long, time: Long): Uri? {
         if (!isDefault(ctx)) return null
@@ -239,10 +200,11 @@ object SmsRepository {
 
     fun deleteThread(ctx: Context, threadId: Long, address: String): DeleteResult {
         SmsStore.deleteForAddress(ctx, address)
+        val id = if (threadId > 0) threadId else threadIdForAddress(ctx, address)
+        if (id <= 0) return DeleteResult(isDefault = isDefault(ctx), removed = 0)
 
         var removed = 0
         var denied = false
-
         fun attempt(uri: Uri, sel: String, args: Array<String>): Int = try {
             ctx.contentResolver.delete(uri, sel, args)
         } catch (e: SecurityException) {
@@ -250,34 +212,8 @@ object SmsRepository {
         } catch (e: Exception) {
             0
         }
-
-        for (tid in threadIdsFor(ctx, threadId, address)) {
-            removed += attempt(Telephony.Sms.CONTENT_URI, "${Telephony.Sms.THREAD_ID}=?", arrayOf(tid.toString()))
-            attempt(Telephony.Mms.CONTENT_URI, "thread_id=?", arrayOf(tid.toString()))
-        }
-
-        if (removed == 0 && !denied) {
-            try {
-                val ids = ArrayList<Long>()
-                ctx.contentResolver.query(
-                    Telephony.Sms.CONTENT_URI, arrayOf(Telephony.Sms._ID, Telephony.Sms.ADDRESS),
-                    null, null, null
-                )?.use { c ->
-                    val i = c.getColumnIndexOrThrow(Telephony.Sms._ID)
-                    val ai = c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
-                    var scanned = 0
-                    while (c.moveToNext() && scanned < MAX_SCAN) {
-                        scanned++
-                        val addr = c.getString(ai) ?: continue
-                        if (PhoneKey.same(addr, address)) ids.add(c.getLong(i))
-                    }
-                }
-                for (id in ids) {
-                    removed += attempt(Telephony.Sms.CONTENT_URI, "${Telephony.Sms._ID}=?", arrayOf(id.toString()))
-                }
-            } catch (e: Exception) {
-            }
-        }
+        removed += attempt(Telephony.Sms.CONTENT_URI, "${Telephony.Sms.THREAD_ID}=?", arrayOf(id.toString()))
+        attempt(Telephony.Mms.CONTENT_URI, "thread_id=?", arrayOf(id.toString()))
         return DeleteResult(isDefault = !denied, removed = removed)
     }
 
@@ -292,7 +228,7 @@ object SmsRepository {
             ctx.contentResolver.query(
                 Telephony.Mms.CONTENT_URI, arrayOf(Telephony.Mms._ID),
                 "${Telephony.Mms.MESSAGE_BOX}=${Telephony.Mms.MESSAGE_BOX_INBOX}", null,
-                "${Telephony.Mms.DATE} DESC"
+                "${Telephony.Mms.DATE} DESC LIMIT 1"
             )?.use { c ->
                 if (c.moveToFirst()) {
                     val id = c.getLong(0)

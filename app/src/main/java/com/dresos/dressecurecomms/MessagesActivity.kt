@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import androidx.preference.PreferenceManager
 import com.dresos.dressecurecomms.util.Actions
+import com.dresos.dressecurecomms.util.Diagnostics
 import com.dresos.dressecurecomms.util.Contacts
 import com.dresos.dressecurecomms.util.TimeFmt
 import androidx.core.widget.doAfterTextChanged
@@ -164,11 +165,29 @@ class MessagesActivity : AppCompatActivity() {
         actions.add { Actions.copy(this, "number", c.address); snack(getString(R.string.number_copied)) }
         labels.add("Delete")
         actions.add { confirmDelete(c) }
+        labels.add(getString(R.string.diag_action))
+        actions.add { showDiagnostics(c.address) }
 
         MaterialAlertDialogBuilder(this)
             .setTitle(nameFor(c.address))
             .setItems(labels.toTypedArray()) { _, which -> actions[which]() }
             .show()
+    }
+
+    private fun showDiagnostics(address: String) {
+        lifecycleScope.launch {
+            val text = withContext(Dispatchers.IO) { Diagnostics.report(this@MessagesActivity, address) }
+            if (isFinishing || isDestroyed) return@launch
+            MaterialAlertDialogBuilder(this@MessagesActivity)
+                .setTitle(R.string.diag_title)
+                .setMessage(text)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNeutralButton(R.string.diag_copy) { _, _ ->
+                    Actions.copy(this@MessagesActivity, "diagnostic", text)
+                    snack(getString(R.string.diag_copied))
+                }
+                .show()
+        }
     }
 
     private fun confirmDelete(c: SmsRepository.Conversation) {

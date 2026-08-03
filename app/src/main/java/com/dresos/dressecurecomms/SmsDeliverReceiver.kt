@@ -10,6 +10,7 @@ import com.dresos.dressecurecomms.crypto.ContactKeys
 import com.dresos.dressecurecomms.crypto.SmsCrypto
 import com.dresos.dressecurecomms.data.SmsRepository
 import com.dresos.dressecurecomms.util.Contacts
+import com.dresos.dressecurecomms.util.Diagnostics
 import com.dresos.dressecurecomms.util.Notify
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +45,7 @@ class SmsDeliverReceiver : BroadcastReceiver() {
 
     private fun store(context: Context, sender: String, body: String, sentAt: Long) {
         try {
+            if (!SmsRepository.isDefault(context)) return
             if (sentAt > 0 && alreadyStored(context, sender, body, sentAt)) return
             val now = System.currentTimeMillis()
             val threadId = SmsRepository.threadIdForAddress(context, sender)
@@ -57,8 +59,10 @@ class SmsDeliverReceiver : BroadcastReceiver() {
                 put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_INBOX)
                 if (threadId > 0) put(Telephony.Sms.THREAD_ID, threadId)
             }
-            context.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
+            val row = context.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
+            Diagnostics.recordInbound(context, sender, threadId, row)
         } catch (e: Exception) {
+            Diagnostics.recordFailure(context, sender, e)
         }
     }
 

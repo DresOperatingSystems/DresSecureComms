@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.2
+
+### Fixed
+- Messages from one particular contact still arriving in the notification and never appearing in the conversation. The 1.8.1 fix treated this as the app needing to match phone numbers itself and stitch several conversations back together, and that was the wrong diagnosis. Android already decides which conversation a message belongs to, in the system messaging database, using its own rules for what counts as the same number. The app was second guessing that with its own matching and then searching for messages across whichever conversations it thought were related, and it also stopped searching after a fixed number of records, so a contact with a long history could fall outside the search entirely while everyone else looked fine. The app now asks Android which conversation a message belongs to and reads that conversation directly, the same way the system messaging app does. No number matching of its own, no stitching, and no limit on how far back it will look.
+- The conversation list is now read from Android's own conversation index rather than assembled by trawling every message on the device. It is faster on a large message history and it can no longer miss a conversation.
+- Incoming messages are no longer stored at all if the app is not currently the default messaging app, which prevents a half stored message that shows in the notification and nowhere else.
+
+### Added
+- A conversation diagnostic. Press and hold a conversation and choose "Why are messages missing" to get a plain text report showing which conversation Android assigned the messages to, which one the app is reading, what the number looks like as actually stored, and the last few incoming messages the app handled. It can be copied and sent to security@dresos.org. If the problem happens again this tells us exactly where the mismatch is instead of leaving us guessing.
+
 ## 1.8.1
 
 ### Added
