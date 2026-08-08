@@ -48,6 +48,10 @@
             app:key="geo_apply"
             app:title="@string/set_geo_apply_title"
             app:summary="@string/set_geo_apply_sub" />
+        <Preference
+            app:key="geo_clear"
+            app:title="@string/set_geo_clear_title"
+            app:summary="@string/set_geo_clear_sub" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/set_cat_calls">

@@ -67,6 +67,8 @@
     <string name="set_geo_random_sub">Let the app pick a random latitude and longitude</string>
     <string name="set_geo_apply_title">Apply mock location</string>
     <string name="set_geo_apply_sub">Set this app as the mock location app in Developer options first</string>
+    <string name="set_geo_clear_title">Stop mock location</string>
+    <string name="set_geo_clear_sub">Remove the mock providers and go back to the real location</string>
     <string name="scan_a_file">Scan a file</string>
     <string name="scan_one_app">Scan one app</string>
     <string name="scan_all_apps">Scan installed apps</string>

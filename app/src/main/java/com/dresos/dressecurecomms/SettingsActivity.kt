@@ -65,6 +65,11 @@ class SettingsActivity : AppCompatActivity() {
                 else toast(MockLocation.apply(requireContext(), lat, lng))
                 true
             }
+
+            findPreference<Preference>("geo_clear")?.setOnPreferenceClickListener {
+                toast(MockLocation.clear(requireContext()))
+                true
+            }
         }
 
         private fun blockedNumbers() {
