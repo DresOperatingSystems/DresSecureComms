@@ -1,0 +1,9 @@
+Two fixes and two security changes in this update.
+
+The geo spoofer now holds your location instead of being overwritten by apps like Google Maps.
+
+The speakerphone now turns on reliably during calls.
+
+An internal receiver that other apps could reach but never needed to has been closed off.
+
+The screen other apps use to start a new message is now guarded against a malformed request.

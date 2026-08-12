@@ -15,7 +15,10 @@ class ComposeActivity : AppCompatActivity() {
         else
             Intent(this, MessagesActivity::class.java)
         next.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(next)
+        try {
+            startActivity(next)
+        } catch (e: Exception) {
+        }
         finish()
     }
 }

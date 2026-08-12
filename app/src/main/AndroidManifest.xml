@@ -145,7 +145,7 @@
         <!-- Incoming MMS, delivered once downloaded and stored -->
         <receiver
             android:name=".MmsReceiver"
-            android:exported="true"
+            android:exported="false"
             android:taskAffinity="com.klinker.android.messaging.MMS_RECEIVED">
             <intent-filter>
                 <action android:name="com.klinker.android.messaging.MMS_RECEIVED" />

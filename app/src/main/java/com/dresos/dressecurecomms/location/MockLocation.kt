@@ -7,24 +7,27 @@ import android.location.LocationManager
 import android.location.provider.ProviderProperties
 import android.os.Build
 import android.os.SystemClock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 object MockLocation {
-    fun apply(context: Context, lat: Double, lng: Double): String {
-        val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val providers = ArrayList<String>(3)
-        providers.add(LocationManager.GPS_PROVIDER)
-        providers.add(LocationManager.NETWORK_PROVIDER)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            providers.add(LocationManager.FUSED_PROVIDER)
-        }
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    @Volatile private var pushJob: Job? = null
+    @Volatile private var target: Pair<Double, Double>? = null
 
-        val now = System.currentTimeMillis()
-        val elapsed = SystemClock.elapsedRealtimeNanos()
+    fun apply(context: Context, lat: Double, lng: Double): String {
+        val app = context.applicationContext
+        val lm = app.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         var applied = 0
         var denied = false
         var failure = ""
 
-        for (provider in providers) {
+        for (provider in providers()) {
             try {
                 try {
                     lm.removeTestProvider(provider)
@@ -32,7 +35,6 @@ object MockLocation {
                 }
                 register(lm, provider)
                 lm.setTestProviderEnabled(provider, true)
-                lm.setTestProviderLocation(provider, fix(provider, lat, lng, now, elapsed))
                 applied++
             } catch (e: SecurityException) {
                 denied = true
@@ -41,24 +43,34 @@ object MockLocation {
             }
         }
 
-        return when {
-            applied > 0 -> "Mock location set to $lat, $lng"
-            denied -> "Enable this app as the mock location app in Developer options first."
-            failure.isEmpty() -> "Could not set mock location."
-            else -> "Could not set mock location. $failure"
+        if (applied == 0) {
+            return when {
+                denied -> "Enable this app as the mock location app in Developer options first."
+                failure.isEmpty() -> "Could not set mock location."
+                else -> "Could not set mock location. $failure"
+            }
         }
+
+        target = lat to lng
+        pushJob?.cancel()
+        pushJob = scope.launch {
+            while (isActive) {
+                val t = target ?: break
+                push(lm, t.first, t.second)
+                delay(1000)
+            }
+        }
+        return "Mock location set to $lat, $lng"
     }
 
     fun clear(context: Context): String {
-        val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val providers = ArrayList<String>(3)
-        providers.add(LocationManager.GPS_PROVIDER)
-        providers.add(LocationManager.NETWORK_PROVIDER)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            providers.add(LocationManager.FUSED_PROVIDER)
-        }
+        val app = context.applicationContext
+        val lm = app.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        target = null
+        pushJob?.cancel()
+        pushJob = null
         var removed = 0
-        for (provider in providers) {
+        for (provider in providers()) {
             try {
                 lm.removeTestProvider(provider)
                 removed++
@@ -67,6 +79,27 @@ object MockLocation {
         }
         return if (removed > 0) "Mock location stopped. Real location restored."
         else "Mock location was not active."
+    }
+
+    private fun push(lm: LocationManager, lat: Double, lng: Double) {
+        val now = System.currentTimeMillis()
+        val elapsed = SystemClock.elapsedRealtimeNanos()
+        for (provider in providers()) {
+            try {
+                lm.setTestProviderLocation(provider, fix(provider, lat, lng, now, elapsed))
+            } catch (e: Exception) {
+            }
+        }
+    }
+
+    private fun providers(): List<String> {
+        val list = ArrayList<String>(3)
+        list.add(LocationManager.GPS_PROVIDER)
+        list.add(LocationManager.NETWORK_PROVIDER)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            list.add(LocationManager.FUSED_PROVIDER)
+        }
+        return list
     }
 
     private fun register(lm: LocationManager, provider: String) {

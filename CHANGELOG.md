@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.4
+
+### Fixed
+- The geo spoofer holding your location instead of losing it. It used to set the position once, so the moment an app like Google Maps refreshed from its own sources it overwrote it and your real location came back. It now keeps reapplying the position for as long as spoofing is on, so it stays put. Thank you to the user who recorded this next to another spoofing app and showed the difference.
+- The speakerphone sometimes not turning on during a call. The app was switching audio to the speaker without first putting the phone into its in call audio state, so depending on timing and device the request was ignored. It now sets that state when the call screen opens and puts it back when the call ends, which is what makes the speaker toggle work reliably. Turning the speaker off now also hands back to a wired headset if one is plugged in, instead of always forcing the earpiece.
+
+### Security
+- Closed one of the app's internal receivers to the app itself. It had been reachable by other apps on the device even though the component that drives it only ever sends to this app by name, so nothing outside the app had any reason to reach it. No other app can trigger it now.
+- Guarded the screen that other apps hand a phone number or message to when they ask this app to start a new message. A malformed request from another app can no longer crash it.
+
 ## 1.8.2
 
 ### Fixed

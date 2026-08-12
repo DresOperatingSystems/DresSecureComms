@@ -11,7 +11,7 @@ object CallManager {
 
     fun setSpeaker(on: Boolean) {
         inCallService?.setAudioRoute(
-            if (on) CallAudioState.ROUTE_SPEAKER else CallAudioState.ROUTE_EARPIECE
+            if (on) CallAudioState.ROUTE_SPEAKER else CallAudioState.ROUTE_WIRED_OR_EARPIECE
         )
     }
 

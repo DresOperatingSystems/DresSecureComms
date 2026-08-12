@@ -8,6 +8,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -65,6 +66,9 @@ class InCallActivity : AppCompatActivity() {
         b = ActivityIncallBinding.inflate(layoutInflater)
         setContentView(b.root)
         setUpProximity()
+        runCatching {
+            (getSystemService(Context.AUDIO_SERVICE) as AudioManager).mode = AudioManager.MODE_IN_CALL
+        }
 
         val call = CallManager.call
         if (call == null) { finish(); return }
@@ -303,6 +307,9 @@ class InCallActivity : AppCompatActivity() {
         releaseProximity()
         watched?.unregisterCallback(callback)
         watched = null
+        runCatching {
+            (getSystemService(Context.AUDIO_SERVICE) as AudioManager).mode = AudioManager.MODE_NORMAL
+        }
     }
 
     private fun toast(s: String) = Toast.makeText(this, s, Toast.LENGTH_SHORT).show()
