@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.dresos.dressecurecomms.data.ContactsStore
+import com.dresos.dressecurecomms.data.VCard
 import com.dresos.dressecurecomms.databinding.ActivityContactsBinding
 import com.dresos.dressecurecomms.ui.TwoLineAdapter
 import androidx.core.widget.doAfterTextChanged
@@ -26,6 +27,16 @@ class ContactsActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) importDevice()
             else Snackbar.make(b.root, "Contacts permission denied", Snackbar.LENGTH_LONG).show()
+        }
+
+    private val pickVcf =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) importVcf(uri)
+        }
+
+    private val saveVcf =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("text/vcard")) { uri ->
+            if (uri != null) exportVcf(uri)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,13 +76,59 @@ class ContactsActivity : AppCompatActivity() {
     }
 
     private fun addMenu() {
+        val options = arrayOf(
+            getString(R.string.add_contact),
+            getString(R.string.import_device),
+            getString(R.string.import_file),
+            getString(R.string.export_file)
+        )
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.add_contact)
-            .setItems(arrayOf(getString(R.string.add_contact), getString(R.string.import_device))) { _, which ->
-                if (which == 0) showForm(null)
-                else requestReadContacts.launch(Manifest.permission.READ_CONTACTS)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showForm(null)
+                    1 -> requestReadContacts.launch(Manifest.permission.READ_CONTACTS)
+                    2 -> pickVcf.launch(arrayOf("text/vcard", "text/x-vcard", "text/directory", "*/*"))
+                    3 -> saveVcf.launch("contacts.vcf")
+                }
             }
             .show()
+    }
+
+    private fun importVcf(uri: android.net.Uri) {
+        val text = try {
+            contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+        } catch (e: Exception) {
+            null
+        }
+        if (text == null) {
+            Snackbar.make(b.root, getString(R.string.import_failed), Snackbar.LENGTH_LONG).show()
+            return
+        }
+        val found = VCard.parse(text)
+        if (found.isEmpty()) {
+            Snackbar.make(b.root, getString(R.string.no_contacts_in_file), Snackbar.LENGTH_LONG).show()
+            return
+        }
+        ContactsStore.addAll(this, found)
+        refresh()
+        Snackbar.make(b.root, getString(R.string.imported_file, found.size), Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun exportVcf(uri: android.net.Uri) {
+        val contacts = ContactsStore.load(this)
+        if (contacts.isEmpty()) {
+            Snackbar.make(b.root, getString(R.string.no_contacts_to_export), Snackbar.LENGTH_LONG).show()
+            return
+        }
+        val ok = try {
+            contentResolver.openOutputStream(uri)?.use { it.write(VCard.write(contacts).toByteArray()) }
+            true
+        } catch (e: Exception) {
+            false
+        }
+        val msg = if (ok) getString(R.string.exported_file, contacts.size) else getString(R.string.export_failed)
+        Snackbar.make(b.root, msg, Snackbar.LENGTH_LONG).show()
     }
 
     private fun showForm(existing: ContactsStore.Contact?) {

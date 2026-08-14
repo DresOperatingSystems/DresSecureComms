@@ -150,4 +150,12 @@
     <string name="set_own_number_sub">Used only to spot callers faking your local prefix. Stored on the device.</string>
     <string name="set_spam_manage_title">Blocked numbers</string>
     <string name="set_spam_manage_sub">Review and clear the numbers you have blocked</string>
+    <string name="import_file">Import from file</string>
+    <string name="export_file">Export to file</string>
+    <string name="import_failed">Could not read that file</string>
+    <string name="export_failed">Could not save the file</string>
+    <string name="no_contacts_in_file">No contacts found in that file</string>
+    <string name="no_contacts_to_export">No contacts to export</string>
+    <string name="imported_file">Imported %1$d contacts</string>
+    <string name="exported_file">Exported %1$d contacts</string>
 </resources>

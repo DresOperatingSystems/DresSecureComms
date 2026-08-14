@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.5
+
+### Added
+- Import contacts from a .vcf (vCard) file, and export your contacts to one. Both use the system file picker, so no contacts permission is needed. This lets you move contacts in from a backup or another app, keep them in a local file, or work fully offline, and back up your encrypted contacts to a file whenever you want. Thank you to the user who suggested and supported this.
+
 ## 1.8.4
 
 ### Fixed
