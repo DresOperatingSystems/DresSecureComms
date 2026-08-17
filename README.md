@@ -134,3 +134,6 @@ A huge thank you must also go to [Fake Traveler](https://github.com/mcastillof/F
 A huge thank you must also go to [URL Check](https://github.com/TrianguloY/URLCheck), As we used their scan part that connects to VirusTotal and built our URL scan engine up from that.
 
 A huge thank you must also go to [Hypatia](https://github.com/Divested-Mobile/Hypatia). Hypatia is the on device scanner our File Scan is set to replace inside DresOS, and it set the bar for what a scanner on a de Googled phone should do. Version one of our engine checks fingerprints against VirusTotal; the offline signature scanning Hypatia does so well is what version two brings.
+
+
+IF THERE IS A PROBLEM WITH THE APP OR YOU HAVE A FEATURE REQUEST STOP OPENING ISSUES ON GITHUB AS THEY GO UNANSWERED MOST OF THE TIME, SO EMAIL US security@dresos.org
