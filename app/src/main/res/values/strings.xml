@@ -158,4 +158,8 @@
     <string name="no_contacts_to_export">No contacts to export</string>
     <string name="imported_file">Imported %1$d contacts</string>
     <string name="exported_file">Exported %1$d contacts</string>
+    <string name="set_cat_language">Language</string>
+    <string name="set_language_title">App language</string>
+    <string name="set_language_sub">Choose the app language. To request a language that is not listed, email security@dresos.org</string>
+    <string name="language_system_default">System default</string>
 </resources>

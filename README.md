@@ -116,7 +116,9 @@ Apache-2.0. Copyright © 2026 The DresOS Foundation.
 
 ## Privacy & Permissions
 DresSecureComms requires SMS, Phone, and Location permissions to act as your secure, offline default Dialer and SMS app. We do not collect data. 
-Read our full [Privacy Policy](privacy_policy.md). [All Virus Checks Passed](https://www.virustotal.com/gui/file/5a7125c5dfb430994fc4c333dc84234db25ae552bfd808246530fdd0f8ad3637?nocache=1)
+Read our full [Privacy Policy](privacy_policy.md). 
+
+Our app now gets called malware by Google play protect this is because of Googles misbehaviour when it comes to 3rd party apps especially if they're focused on securing you and being open sourced, they have also started this type of misbehaviour with GrapheneOS by banning revolut, we want to assure you that our application is clean and has been verified by IzzyOnDroid themselves along with it being whitelisted by some of the biggest security vendors that being Bitdefender, Avast, AVG and McAfee. If you have any prior worries to installing then please send us an email at security@dresos.org. Also we think Google is doing this to us because we have just hit 12k downloads and at least 10k of them are on DresSecureComms, so hopefully that gives you some insight.
 
 ## Donate
 

@@ -132,10 +132,41 @@ object SmsRepository {
             } catch (e: Exception) {
             }
         }
+        if (out.isEmpty() && address.isNotEmpty()) {
+            out.addAll(byAddress(ctx, address, key))
+        }
         for (s in SmsStore.forAddress(ctx, address)) {
             out.add(Msg(s.body, s.time, true))
         }
         return dedupe(out)
+    }
+
+    private fun byAddress(ctx: Context, address: String, key: String): List<Msg> {
+        val out = ArrayList<Msg>()
+        val wanted = address.filter { it.isDigit() }.takeLast(9)
+        if (wanted.length < 7) return out
+        try {
+            ctx.contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                arrayOf(Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE),
+                null, null,
+                "${Telephony.Sms.DATE} ASC LIMIT $MAX_THREAD"
+            )?.use { c ->
+                while (c.moveToNext()) {
+                    val a = (c.getString(0) ?: "").filter { it.isDigit() }.takeLast(9)
+                    if (a != wanted) continue
+                    out.add(
+                        Msg(
+                            decode(ctx, c.getString(1) ?: "", key),
+                            c.getLong(2),
+                            c.getInt(3) != Telephony.Sms.MESSAGE_TYPE_INBOX
+                        )
+                    )
+                }
+            }
+        } catch (e: Exception) {
+        }
+        return out
     }
 
     private fun dedupe(items: List<Msg>): List<Msg> {

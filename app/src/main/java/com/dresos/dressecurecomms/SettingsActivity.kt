@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.preference.ListPreference
 import com.dresos.dressecurecomms.data.SpamStore
 import com.dresos.dressecurecomms.location.MockLocation
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
@@ -38,6 +41,17 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.preferences, rootKey)
 
             findPreference<Preference>("default_sms")?.setOnPreferenceClickListener { requestSms(); true }
+
+            findPreference<ListPreference>("language_pref")?.let { pref ->
+                pref.value = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+                pref.setOnPreferenceChangeListener { _, newValue ->
+                    val tag = newValue as String
+                    val locales = if (tag.isEmpty()) LocaleListCompat.getEmptyLocaleList()
+                        else LocaleListCompat.forLanguageTags(tag)
+                    AppCompatDelegate.setApplicationLocales(locales)
+                    true
+                }
+            }
             findPreference<Preference>("default_phone")?.setOnPreferenceClickListener { requestPhone(); true }
             findPreference<Preference>("default_screen")?.setOnPreferenceClickListener { requestScreen(); true }
 

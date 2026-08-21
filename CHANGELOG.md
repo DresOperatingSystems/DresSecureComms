@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.6
+
+### Added
+- You can now choose the app language in Settings, with Spanish as the first translation. More languages can be added over time. To request one that is not listed, email security@dresos.org.
+
+### Fixed
+- Contact names with emoji or accents imported from a .vcf file no longer show garbled. The vCard importer now decodes those names correctly.
+- Some conversations showed a blank message screen until you placed a call to that person. Messages now load even when the thread cannot be resolved the usual way.
+
 ## 1.8.5
 
 ### Added

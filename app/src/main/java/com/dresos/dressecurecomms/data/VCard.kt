@@ -1,6 +1,8 @@
 /* Copyright © 2026 The DresOS Foundation. Licensed under the Apache License, Version 2.0. */
 package com.dresos.dressecurecomms.data
 
+import java.io.ByteArrayOutputStream
+
 object VCard {
 
     fun parse(text: String): List<ContactsStore.Contact> {
@@ -24,19 +26,21 @@ object VCard {
                 inCard -> {
                     val colon = line.indexOf(':')
                     if (colon <= 0) continue
-                    val field = line.substring(0, colon).uppercase()
-                    val value = decode(line.substring(colon + 1)).trim()
+                    val head = line.substring(0, colon)
+                    val params = head.split(";")
+                    val field = params[0].uppercase()
+                    val quoted = params.any { it.uppercase().contains("QUOTED-PRINTABLE") }
+                    val rawValue = line.substring(colon + 1)
+                    val value = decode(if (quoted) quotedPrintable(rawValue) else rawValue).trim()
                     when {
                         field == "FN" && value.isNotEmpty() -> name = value
-                        field.startsWith("N;") || field == "N" -> {
-                            if (name.isEmpty()) {
-                                val parts = value.split(";")
-                                val built = ((parts.getOrNull(1) ?: "") + " " + (parts.getOrNull(0) ?: "")).trim()
-                                if (built.isNotEmpty()) name = built
-                            }
+                        field == "N" && name.isEmpty() -> {
+                            val parts = value.split(";")
+                            val built = ((parts.getOrNull(1) ?: "") + " " + (parts.getOrNull(0) ?: "")).trim()
+                            if (built.isNotEmpty()) name = built
                         }
-                        field.startsWith("TEL") && number.isEmpty() -> number = value
-                        field.startsWith("EMAIL") && email.isEmpty() -> email = value
+                        field == "TEL" && number.isEmpty() -> number = value
+                        field == "EMAIL" && email.isEmpty() -> email = value
                     }
                 }
             }
@@ -68,6 +72,26 @@ object VCard {
             }
         }
         return out
+    }
+
+    private fun quotedPrintable(v: String): String {
+        val bytes = ByteArrayOutputStream()
+        var i = 0
+        while (i < v.length) {
+            val ch = v[i]
+            if (ch == '=' && i + 2 < v.length) {
+                val hex = v.substring(i + 1, i + 3)
+                val code = hex.toIntOrNull(16)
+                if (code != null) {
+                    bytes.write(code)
+                    i += 3
+                    continue
+                }
+            }
+            bytes.write(ch.code)
+            i++
+        }
+        return bytes.toByteArray().toString(Charsets.UTF_8)
     }
 
     private fun decode(v: String): String =

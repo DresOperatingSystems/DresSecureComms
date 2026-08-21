@@ -1,0 +1,1 @@
+You can now choose the app language in Settings, with Spanish as the first translation and more to come. Two fixes as well: contact names with emoji or accents imported from a .vcf file no longer show garbled, and conversations that used to show a blank message screen until you called the person now load their messages properly.

@@ -113,4 +113,14 @@
             app:title="@string/set_sharelog_title"
             app:summary="@string/set_sharelog_sub" />
     </PreferenceCategory>
+    <PreferenceCategory app:title="@string/set_cat_language">
+        <ListPreference
+            app:key="language_pref"
+            app:title="@string/set_language_title"
+            app:summary="@string/set_language_sub"
+            app:entries="@array/language_names"
+            app:entryValues="@array/language_values"
+            app:defaultValue="" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
