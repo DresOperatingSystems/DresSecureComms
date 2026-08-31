@@ -13,9 +13,7 @@ replacing several separate tools with a single hardened app so that messaging, c
 
 ## Download
 
->[<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.1)
-[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="50">](https://apt.izzysoft.de/packages/com.dresos.dressecurecomms)
-[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.8.1)
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="50">](https://apt.izzysoft.de/packages/com.dresos.dressecurecomms) [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" height="50">](https://obtainium.imranr.dev/redirect?url=https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.9.0) [<img src="https://img.shields.io/badge/Download-GitHub%20Releases-blue?style=for-the-badge&logo=github" height="50">](https://github.com/DresOperatingSystems/DresSecureComms/releases/tag/v1.9.0) [<img src="https://img.shields.io/badge/Zapstore-Download-8B5CF6?style=for-the-badge&logo=android&logoColor=white" height="50">](https://zapstore.dev/apps/com.dresos.dressecurecomms) [<img src="https://img.shields.io/badge/Unclouded-Download-0EA5E9?style=for-the-badge&logo=android&logoColor=white" height="50">](https://unclouded.app/apps/dressecurecomms) [<img src="https://img.shields.io/badge/OpenAPK-Download-16A34A?style=for-the-badge&logo=android&logoColor=white" height="50">](https://www.openapk.net/dressecurecomms/com.dresos.dressecurecomms/) [<img src="https://img.shields.io/badge/AndroidFreeware-Download-F59E0B?style=for-the-badge&logo=android&logoColor=white" height="50">](https://www.androidfreeware.net/download-dressecurecomms-apk.html)
 
 ## What it does
 
