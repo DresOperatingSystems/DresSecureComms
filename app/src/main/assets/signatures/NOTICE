@@ -1,0 +1,9 @@
+Signature sources for the DresSecureComms offline scanner.
+
+Bundled default database (hashes.hsb.gz):
+  Stalkerware Indicators Collective (AssoEchap and contributors)
+  https://github.com/AssoEchap/stalkerware-indicators
+  Licensed CC BY 4.0. Android stalkerware and spyware sample hashes.
+
+Users may import additional signature files. Only include hashes from
+sources whose license permits redistribution.

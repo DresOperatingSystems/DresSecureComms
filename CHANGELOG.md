@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.0
+
+### Added
+- An offline malware scanner. Files and installed apps can be checked against a signature database held on the device, with nothing sent anywhere and no key or connection needed. It runs first and reports if something matches a known-malware signature.
+- The app ships with a starter database of over three thousand known Android stalkerware and spyware signatures, so it detects real threats straight away. The set comes from the Stalkerware Indicators Collective and is credited in the app.
+- You can manage the database yourself. On the file scan menu, Offline signature database shows how many signatures are loaded and lets you import a signature file from your device using the system file picker, with no permission needed, and either replace the database or add to it. Import a fresh file whenever you want to keep it up to date.
+- VirusTotal stays a separate option. If you have a key set, the online check still runs for anything the offline scan did not flag.
+
 ## 1.8.6
 
 ### Added

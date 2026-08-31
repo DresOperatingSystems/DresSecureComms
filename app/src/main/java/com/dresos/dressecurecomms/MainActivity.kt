@@ -30,6 +30,7 @@ import com.dresos.dressecurecomms.databinding.CardItemBinding
 import com.dresos.dressecurecomms.media.MetadataWiper
 import com.dresos.dressecurecomms.net.VirusTotalClient
 import com.dresos.dressecurecomms.scan.FileScanner
+import com.dresos.dressecurecomms.scan.OfflineScanner
 import com.dresos.dressecurecomms.util.applyScreenshotPolicy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -42,6 +43,8 @@ import java.io.InputStream
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+    private var pendingMerge = false
+
     private data class Scanned(
         val name: String,
         val sha: String,
@@ -60,6 +63,11 @@ class MainActivity : AppCompatActivity() {
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) onImagePicked(uri)
+        }
+
+    private val pickSignatureDb =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) importSignatures(uri)
         }
 
     private val pickAnyFile =
@@ -204,14 +212,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fileScanDialog() {
-        if (SecureKeys.vtKey(this).isBlank()) {
-            Snackbar.make(binding.root, "Add your VirusTotal API key in Settings first.", Snackbar.LENGTH_LONG).show()
-            return
-        }
         val options = arrayOf(
             getString(R.string.scan_a_file),
             getString(R.string.scan_one_app),
-            getString(R.string.scan_all_apps)
+            getString(R.string.scan_all_apps),
+            getString(R.string.manage_signatures)
         )
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.card_filescan_title)
@@ -224,26 +229,89 @@ class MainActivity : AppCompatActivity() {
                     }
                     1 -> singleAppPrompt()
                     2 -> appScanPrompt()
+                    3 -> signatureDbDialog()
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
+    private fun signatureDbDialog() {
+        lifecycleScope.launch {
+            val count = withContext(Dispatchers.IO) {
+                OfflineScanner.load(this@MainActivity)
+                OfflineScanner.signatureCount()
+            }
+            if (isFinishing || isDestroyed) return@launch
+            val status = if (count > 0) getString(R.string.sig_status_loaded, count)
+                else getString(R.string.sig_status_empty)
+            MaterialAlertDialogBuilder(this@MainActivity)
+                .setTitle(R.string.manage_signatures)
+                .setMessage(status)
+                .setPositiveButton(R.string.sig_import_replace) { _, _ ->
+                    pendingMerge = false
+                    launchSignaturePicker()
+                }
+                .setNeutralButton(R.string.sig_import_merge) { _, _ ->
+                    pendingMerge = true
+                    launchSignaturePicker()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun launchSignaturePicker() {
+        try {
+            pickSignatureDb.launch(arrayOf("*/*"))
+        } catch (e: Exception) {
+            Snackbar.make(binding.root, "No file picker available.", Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    private fun importSignatures(uri: Uri) {
+        val merge = pendingMerge
+        val progress = busy(getString(R.string.sig_importing))
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                OfflineScanner.importFrom(this@MainActivity, uri, merge)
+            }
+            progress.dismiss()
+            if (isFinishing || isDestroyed) return@launch
+            val msg = if (result.ok) getString(R.string.sig_imported, result.count)
+                else when (result.error) {
+                    "no_signatures" -> getString(R.string.sig_none_in_file)
+                    else -> getString(R.string.sig_import_failed)
+                }
+            resultDialog(getString(R.string.manage_signatures), msg)
+        }
+    }
+
     private fun scanFile(uri: Uri) {
         val key = SecureKeys.vtKey(this)
-        if (key.isBlank()) return
         val progress = busy(getString(R.string.scan_busy_file))
         lifecycleScope.launch {
             val scanned = withContext(Dispatchers.IO) {
                 try {
                     val name = FileScanner.displayName(this@MainActivity, uri)
-                    val sha = FileScanner.sha256(this@MainActivity, uri)
-                    val verdict = VirusTotalClient.fileVerdict(sha, key)
-                    Scanned(
-                        name, sha, VirusTotalClient.describe(name, sha, verdict), verdict.state,
-                        FileScanner.sizeOf(this@MainActivity, uri)
-                    )
+                    val size = FileScanner.sizeOf(this@MainActivity, uri)
+                    val offline = contentResolver.openInputStream(uri)?.let {
+                        OfflineScanner.scanStream(this@MainActivity, it)
+                    }
+                    if (offline != null) {
+                        Scanned(name, "", getString(R.string.offline_flagged, name, offline.name),
+                            VirusTotalClient.State.MALICIOUS, size)
+                    } else if (key.isBlank()) {
+                        val sha = FileScanner.sha256(this@MainActivity, uri)
+                        val text = if (OfflineScanner.signatureCount() == 0)
+                            getString(R.string.offline_no_db, name)
+                        else getString(R.string.offline_clean_no_key, name)
+                        Scanned(name, sha, text, VirusTotalClient.State.CLEAN, size)
+                    } else {
+                        val sha = FileScanner.sha256(this@MainActivity, uri)
+                        val verdict = VirusTotalClient.fileVerdict(sha, key)
+                        Scanned(name, sha, VirusTotalClient.describe(name, sha, verdict), verdict.state, size)
+                    }
                 } catch (e: Exception) {
                     Scanned(
                         "", "", "Could not read that file: ${e.message ?: "unexpected error"}",
@@ -260,7 +328,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun singleAppPrompt() {
-        if (SecureKeys.vtKey(this).isBlank()) return
         lifecycleScope.launch {
             val apps = withContext(Dispatchers.IO) { FileScanner.installedApps(this@MainActivity) }
             if (apps.isEmpty()) {
@@ -277,18 +344,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun scanApp(target: FileScanner.Target) {
         val key = SecureKeys.vtKey(this)
-        if (key.isBlank()) return
         val progress = busy(getString(R.string.scan_busy_app))
         lifecycleScope.launch {
             val scanned = withContext(Dispatchers.IO) {
                 try {
                     val file = File(target.path)
-                    val sha = FileScanner.sha256(file)
-                    val verdict = VirusTotalClient.fileVerdict(sha, key)
-                    Scanned(
-                        target.label, sha, VirusTotalClient.describe(target.label, sha, verdict),
-                        verdict.state, file.length()
-                    )
+                    val offline = OfflineScanner.scanFile(this@MainActivity, file)
+                    if (offline != null) {
+                        Scanned(target.label, "", getString(R.string.offline_flagged, target.label, offline.name),
+                            VirusTotalClient.State.MALICIOUS, file.length())
+                    } else if (key.isBlank()) {
+                        val sha = FileScanner.sha256(file)
+                        Scanned(target.label, sha, getString(R.string.offline_clean_no_key, target.label),
+                            VirusTotalClient.State.CLEAN, file.length())
+                    } else {
+                        val sha = FileScanner.sha256(file)
+                        val verdict = VirusTotalClient.fileVerdict(sha, key)
+                        Scanned(target.label, sha, VirusTotalClient.describe(target.label, sha, verdict),
+                            verdict.state, file.length())
+                    }
                 } catch (e: Exception) {
                     Scanned(
                         target.label, "", "Could not read that app: ${e.message ?: "unexpected error"}",
@@ -451,6 +525,24 @@ class MainActivity : AppCompatActivity() {
             var note = ""
             for (app in apps) {
                 if (stopped) break
+                val offline = withContext(Dispatchers.IO) {
+                    try {
+                        OfflineScanner.scanFile(this@MainActivity, File(app.path))
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                if (offline != null) {
+                    done++
+                    flagged.add(getString(R.string.offline_flagged, app.label, offline.name))
+                    progress.setMessage(getString(R.string.scan_progress, done, apps.size, flagged.size))
+                    continue
+                }
+                if (key.isBlank()) {
+                    done++
+                    progress.setMessage(getString(R.string.scan_progress, done, apps.size, flagged.size))
+                    continue
+                }
                 var digest = ""
                 val verdict = withContext(Dispatchers.IO) {
                     try {

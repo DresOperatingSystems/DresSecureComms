@@ -162,4 +162,18 @@
     <string name="set_language_title">App language</string>
     <string name="set_language_sub">Choose the app language. To request a language that is not listed, email security@dresos.org</string>
     <string name="language_system_default">System default</string>
+    <string name="offline_flagged">%1$s matches a known malware signature: %2$s. This was detected offline on your device.</string>
+    <string name="offline_clean_no_key">%1$s did not match any known malware signature on your device. Add a VirusTotal key in Settings to also check it online.</string>
+    <string name="scan_offline_only">Scan offline (no key)</string>
+    <string name="scan_progress">Checked %1$d of %2$d. Flagged so far: %3$d</string>
+    <string name="manage_signatures">Offline signature database</string>
+    <string name="sig_status_loaded">%1$d signatures loaded.</string>
+    <string name="sig_status_empty">No signatures loaded yet. Import a database file to start detecting known malware offline.</string>
+    <string name="sig_import_replace">Import and replace</string>
+    <string name="sig_import_merge">Import and add to current</string>
+    <string name="sig_importing">Importing signatures</string>
+    <string name="sig_imported">Done. The database now holds %1$d signatures.</string>
+    <string name="sig_none_in_file">That file did not contain any valid signatures. Expecting lines of hash:size:name.</string>
+    <string name="sig_import_failed">Could not import that file.</string>
+    <string name="offline_no_db">%1$s could not be checked because no signature database is loaded. Open the offline database and import one first, or add a VirusTotal key to check online.</string>
 </resources>

@@ -148,4 +148,18 @@
     <string name="set_language_title">Idioma de la app</string>
     <string name="set_language_sub">Elige el idioma de la app. Para solicitar un idioma que no está en la lista, escribe a security@dresos.org</string>
     <string name="language_system_default">Predeterminado del sistema</string>
+    <string name="offline_flagged">%1$s coincide con una firma de malware conocida: %2$s. Se detectó sin conexión en tu dispositivo.</string>
+    <string name="offline_clean_no_key">%1$s no coincidió con ninguna firma de malware conocida en tu dispositivo. Añade una clave de VirusTotal en Ajustes para comprobarlo también en línea.</string>
+    <string name="scan_offline_only">Analizar sin conexión (sin clave)</string>
+    <string name="scan_progress">Comprobadas %1$d de %2$d. Detectadas hasta ahora: %3$d</string>
+    <string name="manage_signatures">Base de datos de firmas sin conexión</string>
+    <string name="sig_status_loaded">%1$d firmas cargadas.</string>
+    <string name="sig_status_empty">Aún no hay firmas cargadas. Importa un archivo de base de datos para empezar a detectar malware conocido sin conexión.</string>
+    <string name="sig_import_replace">Importar y reemplazar</string>
+    <string name="sig_import_merge">Importar y añadir a las actuales</string>
+    <string name="sig_importing">Importando firmas</string>
+    <string name="sig_imported">Listo. La base de datos tiene ahora %1$d firmas.</string>
+    <string name="sig_none_in_file">Ese archivo no contenía firmas válidas. Se esperan líneas con hash:tamaño:nombre.</string>
+    <string name="sig_import_failed">No se pudo importar ese archivo.</string>
+    <string name="offline_no_db">No se pudo comprobar %1$s porque no hay ninguna base de datos de firmas cargada. Abre la base de datos sin conexión e importa una, o añade una clave de VirusTotal para comprobar en línea.</string>
 </resources>
