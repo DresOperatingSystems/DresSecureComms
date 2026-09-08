@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.1
+
+### Fixed
+- Conversations with a very long history now open right away instead of taking up to a minute to appear. The most recent messages load first and the rest of the history fills in behind them. This was slow because every encrypted message is unpacked with strong key strengthening, and a long thread had thousands to do at once before showing anything. The encryption itself is unchanged, only the order the work happens in.
+
 ## 1.9.0
 
 ### Added

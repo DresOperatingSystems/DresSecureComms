@@ -86,9 +86,13 @@ object SmsRepository {
         return map
     }
 
-    fun threadById(ctx: Context, threadId: Long, address: String, key: String): List<Msg> {
+    fun threadById(ctx: Context, threadId: Long, address: String, key: String): List<Msg> =
+        threadById(ctx, threadId, address, key, 0)
+
+    fun threadById(ctx: Context, threadId: Long, address: String, key: String, recentLimit: Int): List<Msg> {
         val id = if (threadId > 0) threadId else threadIdForAddress(ctx, address)
         val out = ArrayList<Msg>()
+        val order = if (recentLimit > 0) "DESC LIMIT $recentLimit" else "ASC LIMIT $MAX_THREAD"
         if (id > 0) {
             val args = arrayOf(id.toString())
             try {
@@ -96,7 +100,7 @@ object SmsRepository {
                     Telephony.Sms.CONTENT_URI,
                     arrayOf(Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE),
                     "${Telephony.Sms.THREAD_ID} = ?", args,
-                    "${Telephony.Sms.DATE} ASC LIMIT $MAX_THREAD"
+                    "${Telephony.Sms.DATE} $order"
                 )?.use { c ->
                     while (c.moveToNext()) {
                         out.add(
@@ -115,7 +119,7 @@ object SmsRepository {
                     Telephony.Mms.CONTENT_URI,
                     arrayOf(Telephony.Mms._ID, Telephony.Mms.DATE, Telephony.Mms.MESSAGE_BOX),
                     "${Telephony.Mms.THREAD_ID} = ?", args,
-                    "${Telephony.Mms.DATE} ASC LIMIT $MAX_THREAD"
+                    "${Telephony.Mms.DATE} $order"
                 )?.use { c ->
                     while (c.moveToNext()) {
                         val mid = c.getLong(0)

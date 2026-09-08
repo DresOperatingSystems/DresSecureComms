@@ -183,12 +183,19 @@ class ThreadActivity : AppCompatActivity() {
     private fun reload() {
         val key = ContactKeys.keyFor(this, address)
         lifecycleScope.launch {
-            val items = withContext(Dispatchers.IO) {
+            val recent = withContext(Dispatchers.IO) {
                 if (threadId <= 0) threadId = SmsRepository.threadIdForAddress(this@ThreadActivity, address)
+                SmsRepository.threadById(this@ThreadActivity, threadId, address, key, 50)
+            }
+            adapter.setItems(recent)
+            b.list.setSelection(adapter.count - 1)
+            val full = withContext(Dispatchers.IO) {
                 SmsRepository.threadById(this@ThreadActivity, threadId, address, key)
             }
-            adapter.setItems(items)
-            b.list.setSelection(adapter.count - 1)
+            if (full.size > recent.size) {
+                adapter.setItems(full)
+                b.list.setSelection(adapter.count - 1)
+            }
         }
     }
 
